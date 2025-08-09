@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قائمة التحليلات</title>
+    <!-- تضمين Tailwind CSS من CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* تضمين الخطوط من جوجل */
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Playfair+Display+SC:wght@700&display=swap');
+
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+
+        /* لنمط شريط التمرير */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #9d17aa;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6d07ba;
+        }
+        
+        /* نمط مخصص لظل الـ header أكثر حدة */
+        .header-intense-shadow {
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* لتطبيق الخط الإنجليزي الجديد */
+        .english-font {
+            font-family: 'Playfair Display SC', serif;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen bg-gray-200">
+    <!-- Header ثابت في الأعلى مع تدرج لوني وبظل أكثر حدة، أصبح أكبر قليلاً -->
+    <header class="fixed top-0 right-0 left-0 z-50 bg-gradient-to-l from-[#d000fa] to-[#6d07ba] text-white p-6 text-center rounded-b-3xl header-intense-shadow">
+        <div class="max-w-2xl mx-auto w-full">
+            <a href="https://mogazy.github.io/Almaktba/" class="text-white text-xl font-bold">
+                العودة إلى مكتبتي
+            </a>
+        </div>
+    </header>
+
+    <!-- حاوية المحتوى الرئيسية مع مسافة علوية لتجنب تداخل المحتوى مع الـ header الثابت -->
+    <div class="max-w-2xl mx-auto w-full p-4 flex-grow space-y-4 pt-[6rem]">
+
+        <!-- مربع البحث -->
+        <div class="relative bg-white rounded-lg p-2 shadow-md">
+            <input type="text" id="search-input" placeholder="ابحث عن تحليل..." class="w-full focus:outline-none bg-transparent pr-8 text-gray-700 placeholder-gray-400">
+            <button id="clear-search" class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200 hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586l-1.293-1.293z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- حاوية بيضاء تحتوي على قائمة التحليلات، تمتد على كامل العرض وحتى أسفل الشاشة -->
+        <div class="bg-white p-4 shadow-md border border-gray-200 flex-grow w-full rounded-lg">
+            
+            <!-- عنصر لعرض حالة التحميل أو الخطأ -->
+            <div id="status-message" class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg shadow-md transition-all duration-300">
+                <p>جارٍ تحميل البيانات...</p>
+            </div>
+            
+            <!-- تم تقليل المسافة بين عناصر القائمة إلى space-y-2 -->
+            <div id="analysis-list" class="space-y-2">
+                <!-- سيتم إضافة عناصر القائمة هنا بواسطة JavaScript -->
+            </div>
+            
+            <!-- زر "عرض المزيد" -->
+            <div class="flex justify-center mt-4">
+                <button id="load-more-btn" class="px-6 py-2 bg-[#d000fa] text-white rounded-lg shadow-md hover:bg-[#a600d1] focus:outline-none transition-colors duration-200 hidden">
+                    عرض المزيد
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- تضمين مكتبات Firebase من CDN -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // إعدادات Firebase التي تم توفيرها من قبل المستخدم
+        const firebaseConfig = {
+            apiKey: "AIzaSyCWxQCNU-91cK2FwiL3zs1_bKO6LtJHTz4",
+            authDomain: "rate-f04e2.firebaseapp.com",
+            projectId: "rate-f04e2",
+            storageBucket: "rate-f04e2.firebasestorage.app",
+            messagingSenderId: "236207388801",
+            appId: "1:236207388801:web:f46bdea16a3f25d6e8f580",
+            measurementId: "G-BGZWC1QQXK"
+        };
+        
+        // متغيرات عامة سيتم توفيرها من بيئة Canvas
+        // إذا لم تكن موجودة، سيتم استخدام الإعدادات المحلية
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfigFromEnv = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfig;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // تهيئة Firebase
+        let app;
+        let auth;
+        let db;
+        let allAnalyses = []; // لتخزين جميع التحليلات للبحث
+        let displayedAnalyses = []; // لتخزين قائمة التحليلات التي يتم عرضها حالياً (قد تكون مصفاة)
+        let itemsToShow = 10; // عدد العناصر التي سيتم عرضها في البداية ومع كل نقرة على "عرض المزيد"
+
+        // الحصول على عناصر DOM
+        const statusMessageEl = document.getElementById('status-message');
+        const analysisListEl = document.getElementById('analysis-list');
+        const searchInput = document.getElementById('search-input');
+        const clearSearchBtn = document.getElementById('clear-search');
+        const loadMoreBtn = document.getElementById('load-more-btn');
+
+        // دالة لتهيئة Firebase عند تحميل الصفحة
+        const initializeFirebase = async () => {
+            try {
+                app = initializeApp(firebaseConfigFromEnv);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        console.log("تم توثيق المستخدم بنجاح. UID:", user.uid);
+                        fetchAnalysisData();
+                    } else {
+                        console.log("المستخدم غير موثق، جارٍ تسجيل الدخول.");
+                        signInUser();
+                    }
+                });
+            } catch (error) {
+                console.error("خطأ في تهيئة Firebase:", error);
+                showStatusMessage(`خطأ في تهيئة Firebase: ${error.message}`, 'error');
+            }
+        };
+
+        const signInUser = async () => {
+            showStatusMessage('جارٍ تسجيل الدخول...');
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("خطأ في تسجيل الدخول:", error);
+                showStatusMessage(`خطأ في تسجيل الدخول: ${error.message}. يرجى التحقق من إعدادات التوثيق في Firebase.`, 'error');
+            }
+        };
+
+        /**
+         * دالة لعرض رسالة حالة معينة للمستخدم
+         */
+        function showStatusMessage(message, type = 'info') {
+            statusMessageEl.textContent = message;
+            statusMessageEl.className = 'p-4 rounded-lg shadow-md transition-all duration-300';
+            switch(type) {
+                case 'success':
+                    statusMessageEl.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+                    // لا تعرض رسالة النجاح، فقط قم بإخفاء رسالة التحميل
+                    statusMessageEl.style.display = 'none';
+                    break;
+                case 'error':
+                    statusMessageEl.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
+                    statusMessageEl.style.display = 'block';
+                    break;
+                case 'info':
+                default:
+                    statusMessageEl.classList.add('bg-blue-100', 'border-l-4', 'border-blue-500', 'text-blue-700');
+                    statusMessageEl.style.display = 'block';
+                    break;
+            }
+        }
+
+        /**
+         * دالة لجلب البيانات من مجموعة 'analysis' في Firestore
+         */
+        async function fetchAnalysisData() {
+            showStatusMessage('جارٍ تحميل البيانات...');
+            analysisListEl.innerHTML = '';
+
+            try {
+                const analysisCollectionRef = collection(db, 'analysis');
+                const querySnapshot = await getDocs(analysisCollectionRef);
+
+                allAnalyses = [];
+                querySnapshot.forEach((doc) => {
+                    allAnalyses.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // قم بفرز البيانات أبجدياً
+                allAnalyses.sort((a, b) => a.analysisName.localeCompare(b.analysisName, 'ar', { sensitivity: 'base' }));
+
+                displayedAnalyses = allAnalyses;
+                renderList(displayedAnalyses);
+                // إزالة رسالة "تم تحميل البيانات بنجاح!"
+                showStatusMessage('', 'success');
+            } catch (error) {
+                console.error("خطأ في جلب البيانات:", error);
+                showStatusMessage(`حدث خطأ أثناء جلب البيانات: ${error.message}. يرجى التحقق من الاتصال وقواعد Firestore.`, 'error');
+            }
+        }
+
+        /**
+         * دالة لتنسيق اسم التحليل
+         * تقوم بلف الكلمات الإنجليزية بعلامة <span> مع فئة مخصصة.
+         */
+        function formatAnalysisName(name) {
+            if (!name) return '';
+            // التعبير النمطي للبحث عن الكلمات الإنجليزية
+            const englishWordRegex = /[a-zA-Z\s]+/g;
+            return name.replace(englishWordRegex, (match) => {
+                return `<span class="english-font font-bold">${match}</span>`;
+            });
+        }
+        
+        /**
+         * دالة لعرض التحليلات في واجهة المستخدم مع دعم التصفح
+         * @param {Array} analyses - مصفوفة من التحليلات المراد عرضها
+         */
+        function renderList(analyses) {
+            analysisListEl.innerHTML = '';
+            
+            // تحقق من وجود تحليلات للعرض
+            if (analyses.length === 0) {
+                analysisListEl.innerHTML = `
+                    <div class="bg-gray-100 p-6 rounded-lg text-center text-gray-600 shadow-md">
+                        <p class="mb-2">إما أن يكون الإدخال خاطئًا أو أن التحليل غير موجود.</p>
+                        <p>أعلمنا في <a href="https://mogazy.github.io/Almaktba/rate.html" class="text-blue-600 hover:underline font-bold">قسم التعليقات</a> إذا أردت إضافة التحليل.</p>
+                    </div>
+                `;
+                loadMoreBtn.classList.add('hidden'); // إخفاء زر "عرض المزيد"
+                return;
+            }
+
+            // عرض التحليلات بناءً على عدد العناصر المراد إظهارها
+            analyses.slice(0, itemsToShow).forEach((analysis, index) => {
+                const bgColorClass = index % 2 === 0 ? 'bg-white' : 'bg-gray-100';
+                
+                const itemLink = document.createElement('a');
+                itemLink.href = analysis.link;
+                itemLink.className = `block ${bgColorClass} p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-300 transform hover:scale-[1.01]`;
+
+                const contentDiv = document.createElement('div');
+                contentDiv.className = "flex items-center justify-between";
+
+                const categorySpan = document.createElement('span');
+                categorySpan.className = "inline-block px-3 py-1 rounded-full text-xs font-bold text-white bg-[#6d07ba]";
+                categorySpan.textContent = analysis.category;
+
+                const analysisNameP = document.createElement('p');
+                analysisNameP.className = "text-xl font-bold text-gray-800 text-left";
+                analysisNameP.innerHTML = formatAnalysisName(analysis.analysisName);
+                
+
+                contentDiv.appendChild(categorySpan);
+                contentDiv.appendChild(analysisNameP);
+
+                itemLink.appendChild(contentDiv);
+                analysisListEl.appendChild(itemLink);
+            });
+
+            // إظهار أو إخفاء زر "عرض المزيد"
+            if (itemsToShow < analyses.length) {
+                loadMoreBtn.classList.remove('hidden');
+            } else {
+                loadMoreBtn.classList.add('hidden');
+            }
+        }
+        
+        /**
+         * دالة لتصفية التحليلات بناءً على مدخلات البحث
+         */
+        function filterAnalyses() {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            if (searchTerm === '') {
+                displayedAnalyses = allAnalyses;
+                itemsToShow = 10; // إعادة تعيين عدد العناصر المعروضة
+                renderList(displayedAnalyses);
+                clearSearchBtn.classList.add('hidden');
+                return;
+            }
+
+            clearSearchBtn.classList.remove('hidden');
+
+            const filtered = allAnalyses.filter(analysis => {
+                const name = analysis.analysisName?.toLowerCase() || '';
+                const category = analysis.category?.toLowerCase() || '';
+                const otherNames = analysis.otherNames?.toLowerCase() || '';
+                
+                return name.includes(searchTerm) || category.includes(searchTerm) || otherNames.includes(searchTerm);
+            });
+            
+            displayedAnalyses = filtered;
+            itemsToShow = 10; // إعادة تعيين عدد العناصر المعروضة للبحث الجديد
+            renderList(displayedAnalyses);
+        }
+        
+        /**
+         * دالة لعرض المزيد من العناصر
+         */
+        function loadMoreItems() {
+            itemsToShow += 10; // زيادة عدد العناصر بـ 10
+            renderList(displayedAnalyses); // إعادة عرض القائمة
+        }
+        
+        // إضافة مستمع للأحداث على حقل البحث
+        searchInput.addEventListener('input', filterAnalyses);
+
+        // إضافة مستمع للأحداث على زر مسح البحث
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            filterAnalyses();
+            searchInput.focus();
+        });
+
+        // إضافة مستمع للأحداث على زر "عرض المزيد"
+        loadMoreBtn.addEventListener('click', loadMoreItems);
+
+        // ابدأ بتهيئة Firebase عند تحميل الصفحة
+        initializeFirebase();
+    </script>
+</body>
+</html>
