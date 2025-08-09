@@ -6,8 +6,10 @@
     <title>اختبار PT & PTT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* إضافة خط Inter لتحسين المظهر */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
             color: #374151;
             padding-top: 80px; /* Adjust padding to fit the new header height */
@@ -91,7 +93,59 @@
             80% { transform: translateY(-10px); }
             100% { transform: translateY(0); }
         }
-        
+
+        /* تنسيق جديد لخطوات العمل */
+        .step-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem; /* مسافة بين الخطوات */
+        }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem; /* مسافة بين الرقم والمحتوى */
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.2s ease-in-out;
+        }
+        .step-item:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+        }
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background-color: #4c1d95; /* لون الأيقونة */
+            color: white;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .step-content {
+            text-align: right;
+            width: 100%;
+        }
+        .step-content ul {
+            list-style: none; /* إزالة النقاط الافتراضية */
+            padding: 0;
+            margin-top: 0.5rem;
+        }
+        .step-content ul li::before {
+            content: '•'; /* استخدام نقطة مخصصة */
+            color: #c084fc; /* لون النقطة */
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-right: 0.5em; /* المسافة من النص */
+            text-align: left;
+        }
     </style>
 </head>
 <body class="text-gray-800">
@@ -107,7 +161,7 @@
     <div class="container mx-auto p-4 max-w-2xl">
         <h1 class="text-3xl font-bold text-center mb-6 header-title">اختبار PT & PTT</h1>
 
-        <div class="text-base leading-relaxed mb-8 text-center bg-white p-6 rounded-xl shadow-lg animate-fadeIn text-gray-700">
+        <div class="text-base leading-relaxed mb-8 text-right bg-white p-6 rounded-xl shadow-lg animate-fadeIn text-gray-700">
             <p>
                 وهي اختبارات التخثر التي تقيس قدرة الدم على التجلط والوقت الذي يستغرقه لإتمام هذه العملية. تُجرى هذه الاختبارات عادةً لتقييم صحة نظام التخثر في الجسم، والذي يُعدّ المسؤول عن وقف النزيف بعد أي جرح أو إصابة.
             </p>
@@ -138,35 +192,58 @@
                     <strong class="text-purple-700">زمن البروثرومبين (PT)</strong> هو فحص دم يقيس الوقت الذي يستغرقه البلازما في عينة الدم لتكوين جلطة. يُعبّر عن النتيجة بالثواني ويُقيّم فعالية المسار الخارجي لنظام التخثر. <strong class="text-purple-700">البروثرومبين</strong> هو بروتين أساسي يُنتجه الكبد ويساعد على تكوين الجلطة.
                 </p>
                 <h3 class="text-xl font-semibold text-purple-700 mb-3 mt-6">خطوات العمل (المنهجية اليدوية)</h3>
-                <ol class="list-decimal list-inside leading-relaxed space-y-3">
-                    <li><strong class="text-purple-700">تحضير البلازما:</strong>
-                        <ul class="list-disc list-inside mt-2 pr-4">
-                            <li>يُجمع الدم في أنبوب يحتوي على سترات الصوديوم.</li>
-                            <li>يُقلب الأنبوب بلطف ثم يوضع في جهاز طرد مركزي للحصول على البلازما.</li>
-                        </ul>
-                    </li>
-                    <li><strong class="text-purple-700">الحضانة المسبقة:</strong>
-                        <ul class="list-disc list-inside mt-2 pr-4">
-                            <li>تُوضع البلازما وكاشف الثرومبوبلاستين في حمام مائي عند <strong class="text-purple-700">37 درجة مئوية.</strong></li>
-                        </ul>
-                    </li>
-                    <li><strong class="text-purple-700">بدء التفاعل:</strong>
-                        <ul class="list-disc list-inside mt-2 pr-4">
-                            <li>تُضاف المادة بسرعة إلى البلازما، وفي نفس اللحظة يتم تشغيل ساعة الإيقاف.</li>
-                        </ul>
-                    </li>
-                    <li><strong class="text-purple-700">اكتشاف الجلطة:</strong>
-                        <ul class="list-disc list-inside mt-2 pr-4">
-                            <li>يُحرَّك الأنبوب بلطف ويُلاحظ تكوّن شبكة الفيبرين (Fibrin).</li>
-                            <li>تُوقف ساعة الإيقاف فور رؤية شبكة الفيبرين.</li>
-                        </ul>
-                    </li>
-                    <li><strong class="text-purple-700">تسجيل النتيجة:</strong>
-                        <ul class="list-disc list-inside mt-2 pr-4">
-                            <li>يُسجل الوقت بالثواني، وهو ما يمثل زمن البروثرومبين (PT).</li>
-                        </ul>
-                    </li>
-                </ol>
+                
+                <!-- START: Updated PT Methodology Section -->
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong class="text-purple-700">تحضير البلازما:</strong>
+                            <ul class="mt-2 text-gray-600">
+                                <li>يُجمع الدم في أنبوب يحتوي على سترات الصوديوم.</li>
+                                <li>يُقلب الأنبوب بلطف ثم يوضع في جهاز طرد مركزي للحصول على البلازما.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong class="text-purple-700">الحضانة المسبقة:</strong>
+                            <ul class="mt-2 text-gray-600">
+                                <li>تُوضع البلازما وكاشف الثرومبوبلاستين في حمام مائي عند <strong class="text-purple-700">37 درجة مئوية.</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <strong class="text-purple-700">بدء التفاعل:</strong>
+                            <ul class="mt-2 text-gray-600">
+                                <li>تُضاف المادة بسرعة إلى البلازما، وفي نفس اللحظة يتم تشغيل ساعة الإيقاف.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <strong class="text-purple-700">اكتشاف الجلطة:</strong>
+                            <ul class="mt-2 text-gray-600">
+                                <li>يُحرَّك الأنبوب بلطف ويُلاحظ تكوّن شبكة الفيبرين (Fibrin).</li>
+                                <li>تُوقف ساعة الإيقاف فور رؤية شبكة الفيبرين.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <strong class="text-purple-700">تسجيل النتيجة:</strong>
+                            <ul class="mt-2 text-gray-600">
+                                <li>يُسجل الوقت بالثواني، وهو ما يمثل زمن البروثرومبين (PT).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: Updated PT Methodology Section -->
 
                 <div class="table-container mt-8 bg-white rounded-lg shadow-lg">
                     <table class="custom-table">
@@ -218,32 +295,51 @@
                     <strong class="text-purple-700">الطريقة اليدوية لاختبار زمن الثرومبوبلاستين الجزئي المنشط (aPTT)</strong> هي تقنية كلاسيكية لتحديد قدرة الدم على التخثر. يقيّم هذا الاختبار المسار الداخلي والمشترك للتخثر.
                 </p>
                 <h3 class="text-xl font-semibold text-purple-700 mb-3 mt-6">خطوات العمل (المنهجية اليدوية)</h3>
-                <ol class="list-decimal list-inside leading-relaxed space-y-3">
-                    <li><strong class="text-purple-700">تحضير البلازما:</strong>
-                        <ul class="list-disc list-inside mt-2 pr-4">
-                            <li>يُجمع الدم في أنبوب سترات الصوديوم ويُقلب برفق.</li>
-                            <li>يُوضع الأنبوب في جهاز طرد مركزي للحصول على البلازما.</li>
-                        </ul>
-                    </li>
-                    <li><strong class="text-purple-700">الحضانة المسبقة:</strong>
-                        <ul class="list-disc list-inside mt-2 pr-4">
-                            <li>تُضاف البلازما وكاشف الثرومبوبلاستين المنشط إلى أنبوب اختبار.</li>
-                            <li>يُوضع الأنبوب في حمام مائي عند <strong class="text-purple-700">37 درجة مئوية</strong> لمدة 3-5 دقائق.</li>
-                            <li>يُضاف محلول كلوريد الكالسيوم ويتم تشغيل ساعة الإيقاف فورًا.</li>
-                        </ul>
-                    </li>
-                    <li><strong class="text-purple-700">اكتشاف الجلطة:</strong>
-                        <ul class="list-disc list-inside mt-2 pr-4">
-                            <li>يُحرَّك الأنبوب بلطف ويُلاحظ بداية تكوّن شبكة الفيبرين.</li>
-                            <li>تُوقف ساعة الإيقاف فور رؤية شبكة الفيبرين.</li>
-                        </ul>
-                    </li>
-                    <li><strong class="text-purple-700">تسجيل النتيجة:</strong>
-                        <ul class="list-disc list-inside mt-2 pr-4">
-                            <li>يُسجل الوقت بالثواني، وهو ما يُمثل زمن الثرومبوبلاستين الجزئي المنشط (aPTT).</li>
-                        </ul>
-                    </li>
-                </ol>
+
+                <!-- START: Updated PTT Methodology Section -->
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong class="text-purple-700">تحضير البلازما:</strong>
+                            <ul class="mt-2 text-gray-600">
+                                <li>يُجمع الدم في أنبوب سترات الصوديوم ويُقلب برفق.</li>
+                                <li>يُوضع الأنبوب في جهاز طرد مركزي للحصول على البلازما.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong class="text-purple-700">الحضانة المسبقة:</strong>
+                            <ul class="mt-2 text-gray-600">
+                                <li>تُضاف البلازما وكاشف الثرومبوبلاستين المنشط إلى أنبوب اختبار.</li>
+                                <li>يُوضع الأنبوب في حمام مائي عند <strong class="text-purple-700">37 درجة مئوية</strong> لمدة 3-5 دقائق.</li>
+                                <li>يُضاف محلول كلوريد الكالسيوم ويتم تشغيل ساعة الإيقاف فورًا.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <strong class="text-purple-700">اكتشاف الجلطة:</strong>
+                            <ul class="mt-2 text-gray-600">
+                                <li>يُحرَّك الأنبوب بلطف ويُلاحظ بداية تكوّن شبكة الفيبرين.</li>
+                                <li>تُوقف ساعة الإيقاف فور رؤية شبكة الفيبرين.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <strong class="text-purple-700">تسجيل النتيجة:</strong>
+                            <ul class="mt-2 text-gray-600">
+                                <li>يُسجل الوقت بالثواني، وهو ما يُمثل زمن الثرومبوبلاستين الجزئي المنشط (aPTT).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: Updated PTT Methodology Section -->
                 
                 <div class="table-container mt-8 bg-white rounded-lg shadow-lg">
                     <table class="custom-table">
