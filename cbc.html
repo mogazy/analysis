@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحليل CBC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@400..700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* General body styling */
+        body {
+            font-family: 'Markazi Text', serif;
+            background-color: #f3f4f6; /* Gray background as requested */
+            color: #1f2937; /* Dark text for better readability on light background */
+            line-height: 1.8;
+            direction: rtl;
+            text-align: right;
+            padding: 1rem;
+        }
+
+        /* Main container for content */
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 2rem;
+            background-color: #ffffff; /* White background for the content area */
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Tab button styles */
+        .tab-button {
+            background-color: #f3f4f6; /* Light gray background for inactive tabs */
+            color: #4b5563; /* Dark gray text */
+            padding: 1rem 1.5rem;
+            transition: all 0.3s ease;
+            font-size: 1.25rem;
+            cursor: pointer;
+            border-radius: 0.75rem;
+        }
+        .tab-button.active {
+            background: linear-gradient(45deg, #d000fa, #6d07ba); /* Purple gradient for active tab */
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        /* Tab content styles */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Analysis card styling */
+        .analysis-card {
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e5e7eb; /* Thin border as requested */
+        }
+        .analysis-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Analysis title styling (purple color as requested) */
+        .analysis-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #6d07ba;
+            margin-bottom: 0.5rem;
+        }
+
+        /* How it works list styling - numbers on a separate line */
+        .how-it-works-list {
+            list-style: none;
+            counter-reset: item;
+        }
+        .how-it-works-list li {
+            position: relative;
+            margin-bottom: 1.5rem;
+            background-color: #f3f4f6;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+        }
+        .how-it-works-list li::before {
+            content: counter(item);
+            counter-increment: item;
+            display: block; /* Make the number a block element */
+            margin-bottom: 0.5rem; /* Add spacing below the number */
+            width: 2rem;
+            height: 2rem;
+            background: linear-gradient(45deg, #d000fa, #6d07ba);
+            color: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        /* Mobile-first layout: ensures single column on all screen sizes */
+        .grid {
+            display: block;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+              <a href="https://mogazy.github.io/analysis/">
+    <header class="fixed top-0 right-0 left-0 z-50 bg-gradient-to-l from-[#d000fa] to-[#6d07ba] text-white p-4 text-center rounded-b-3xl header-intense-shadow">
+        <div class="max-w-2xl mx-auto w-full">
+            <span class="text-white text-lg font-bold">
+                العودة إلى قائمة التحليلات
+            </span>
+        </div>
+    </header>
+    </a>
+    <style>
+    body {
+  margin-top: 80px;
+}
+
+        /* تنسيقات الهيدر الجديد */
+.header-intense-shadow {
+ box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+ transition: all 0.3s ease-in-out;
+ padding: 1.1rem; /* حجم padding ابتدائي أكبر */
+ font-size: 2rem; /* حجم خط ابتدائي أكبر */
+ border-bottom-left-radius: 0rem;  
+border-bottom-right-radius: 0rem;
+}
+
+.header-intense-shadow.scrolled {
+box-shadow: 0 6px 10px rgba(0, 0, 0, 0.5);
+padding: 1rem; /* حجم padding أصغر عند التمرير */
+ font-size: 1rem; /* حجم خط أصغر عند التمرير */
+  border-bottom-left-radius: 2rem;  
+border-bottom-right-radius: 2rem;
+}
+</style>
+<script>
+ document.addEventListener('DOMContentLoaded', () => {
+ const header = document.querySelector('header');
+
+ window.addEventListener('scroll', () => {
+ if (window.scrollY > 50) { // يمكنك تعديل قيمة 50 لتحديد متى يبدأ التصغير
+ header.classList.add('scrolled');
+ } else {
+ header.classList.remove('scrolled');
+ }
+ });
+
+ // باقي كود التبويبات (إذا لم تقم بإزالته)
+ const ptTab = document.getElementById('pt-tab');
+ const pttTab = document.getElementById('ptt-tab');
+ const ptContent = document.getElementById('pt-content');
+ const pttContent = document.getElementById('ptt-content');
+
+ function setActiveTab(activeTab, inactiveTab, activeContent, inactiveContent) {
+ activeTab.classList.add('active');
+ activeTab.classList.remove('bg-gray-200', 'text-purple-900');
+ activeTab.classList.add('bg-purple-900', 'text-white');
+
+ inactiveTab.classList.remove('active', 'bg-purple-900', 'text-white');
+ inactiveTab.classList.add('bg-gray-200', 'text-purple-900');
+
+ activeContent.classList.add('active');
+ inactiveContent.classList.remove('active');
+ }
+
+ ptTab.addEventListener('click', () => {
+ setActiveTab(ptTab, pttTab, ptContent, pttContent);
+ });
+
+ pttTab.addEventListener('click', () => {
+ setActiveTab(pttTab, ptTab, pttContent, ptContent);
+ });
+
+ setActiveTab(ptTab, pttTab, ptContent, pttContent);
+ });
+</script>
+
+   
+
+    <div class="container">
+
+        <!-- Header and Description -->
+        <h1 class="text-3xl sm:text-5xl font-bold text-center mb-8 text-fuchsia-800">
+            Complete Blood Count (CBC)
+        </h1>
+        <p class="text-base sm:text-lg text-center mb-12 text-gray-700">
+            CBC هو من الفحوصاتِ الدمويةِ الأساسيةِ التي تقيسُ مكوناتِ الدمِ المتعددةَ، ومنها الكرياتُ الحمرُ، والكرياتُ البيضُ، والصفائحُ الدمويةُ.
+            يُقدمُ هذا الفحصُ معلوماتٍ شاملةً عن حالةِ الجهازِ المكوِّنِ للدمِ، بما في ذلكَ قِيَمُ الكرياتِ الحمرِ والبيضِ والصفيحاتِ.
+            تُجرى عمليةُ تحليلِ تعدادِ الدمِ الكاملِ في عصرِنا الحديثِ باستخدامِ أجهزةِ تحليلِ الدمِ الآليةِ أو شبهِ الآليةِ ولِتفعيلِ عملِ الجهازِ، تُوصَلُ بهِ مجموعةٌ من الموادِ الضروريةِ لأدائهِ.
+        </p>
+
+        <!-- How it Works Section -->
+        <div class="mb-12">
+            <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-center text-gray-800">كيفية عمل التحليل (جهاز CBC) :</h2>
+            <ol class="how-it-works-list">
+                <li>
+                    <span class="text-lg">اجمع العينةَ وضعْها في الأنبوبةِ الأرجوانيةِ EDTA Tube، ثم قلِّبْها وحرِّكْها برفقٍ لضمانِ امتزاجِها بشكلٍ جيّدٍ.</span>
+                </li>
+                <li>
+                    <span class="text-lg">شغِّلِ الجهازَ وأدخِلْ بياناتِ المريضِ.</span>
+                </li>
+                <li>
+                    <span class="text-lg">أدخِلِ العينةَ في الجهازِ بوضعِ شافطة العينة (Aspirator Probe) داخلَ الأنبوبةِ، ثم اضغطْ على الزرِّ المخصَّصِ.</span>
+                </li>
+                <li>
+                    <span class="text-lg">سيبدأُ الجهازُ بشفطِ العينةِ وتحليلِها على الفورِ، ويمكنُكَ ضبطُهُ ليقومَ بطباعةِ النتائجِ بشكلٍ تلقائيٍّ.</span>
+                </li>
+            </ol>
+        </div>
+
+        <!-- Important Note -->
+        <div class="text-center p-6 mb-12 rounded-lg border-2 border-[#d000fa] bg-fuchsia-100 shadow-lg">
+            <p class="text-lg font-bold text-fuchsia-800">
+ملاحظة: إنَّ الأجهزةَ وطرائقَها قد تختلف، ولكنَّ الفكرةَ الأساسيةَ للتحليلِ تبقى ثابتةً.
+            </p>
+        </div>
+
+        <!-- Tabs for Analysis -->
+        <h2 class="text-2xl sm:text-3xl font-bold text-center mb-6 text-gray-800">
+            تحليلات CBC :
+        </h2>
+        <div class="flex justify-center space-x-2 space-x-reverse mb-8">
+            <button class="tab-button active" onclick="openTab(event, 'rbc')"> تحليلات RBC</button>
+            <button class="tab-button" onclick="openTab(event, 'wbc')"> تحليلات WBC</button>
+            <button class="tab-button" onclick="openTab(event, 'platelets')"> تحليلات Platelets</button>
+        </div>
+
+        <!-- RBC Tab Content -->
+        <div id="rbc" class="tab-content active">
+            <p class="text-xl sm:text-2xl font-bold mb-6 text-gray-700">التحاليل المرتبطة بكريات الدم الحمراء هي:</p>
+            <div class="grid gap-6">
+                <div class="analysis-card">
+                    <h3 class="analysis-title">1- كرياتُ الدمِ الحمراءِ (RBC) <span class="text-sm font-normal text-gray-500">Red Blood Cells</span></h3>
+                    <p>وهي الخلايا التي تُعَدُّ الأكثرَ عدداً في الدمِ، وتعملُ على نقلِ الأكسجينِ من الرئتينِ إلى سائرِ أعضاءِ الجسمِ. ويُعدُّ عددُها مؤشراً على قدرةِ الدمِ على حملِ الأكسجينِ.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">2- خضابُ الدمِ (HGB) <span class="text-sm font-normal text-gray-500">Hemoglobin</span></h3>
+                    <p>وهو البروتينُ الغنيُّ بالحديدِ الموجودُ داخلَ كرياتِ الدمِ الحمراءِ، ووظيفتُهُ الأساسيةُ هي حملُ الأكسجينِ.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">3- الهيماتوكريت (HCT) <span class="text-sm font-normal text-gray-500">Hematocrit</span></h3>
+                    <p>وهو نسبةُ حجمِ كرياتِ الدمِ الحمراءِ إلى الحجمِ الإجماليِّ للدمِ. ويُعطي مؤشراً على كثافةِ الدمِ وعددِ الخلايا الحمراءِ فيهِ , ويسمى أيضا PCV ويمكن عمله بشكل منفصل يدويا.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">4- الحجمُ الوسطيُّ للكريةِ (MCV) <span class="text-sm font-normal text-gray-500">Mean Corpuscular Volume</span></h3>
+                    <p>وهو مقياسٌ لمتوسطِ حجمِ كرياتِ الدمِ الحمراءِ. ويُفيدُ في تشخيصِ أنواعٍ مختلفةٍ من فقرِ الدمِ بناءً على حجمِ الخلايا.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">5- متوسطُ خضابِ الكريةِ (MCH) <span class="text-sm font-normal text-gray-500">Mean Corpuscular Hemoglobin</span></h3>
+                    <p>وهو متوسطُ وزنِ الهيموغلوبينِ الموجودُ في كريةِ دمٍ حمراءَ واحدةٍ.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">6- متوسطُ تركيزِ خضابِ الكريةِ (MCHC) <span class="text-sm font-normal text-gray-500">Mean Corpuscular Hemoglobin Concentration</span></h3>
+                    <p>وهو مقياسٌ لمتوسطِ تركيزِ الهيموغلوبينِ داخلَ كرياتِ الدمِ الحمراءِ.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">7- تباينُ حجمِ الكرياتِ (RDW-CV) <span class="text-sm font-normal text-gray-500">Red Cell Distribution Width - Coefficient of Variation</span></h3>
+                    <p>وهو مقياسٌ لمدى تباينِ واختلافِ أحجامِ كرياتِ الدمِ الحمراءِ. وكلما زادتْ قيمةُ هذا الفحصِ، دلَّ ذلكَ على وجودِ اختلافٍ كبيرٍ في أحجامِ الخلايا.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">8- تباينُ حجمِ الكرياتِ (RDW-SD) <span class="text-sm font-normal text-gray-500">Red Cell Distribution Width - Standard Deviation</span></h3>
+                    <p>وهو مقياسٌ أيضاً لمدى تباينِ أحجامِ كرياتِ الدمِ الحمراءِ، ولكنهُ يُعبّرُ عن التباينِ بشكلٍ مباشرٍ (انحرافٍ معياريٍّ) بدلاً من النسبةِ المئويةِ.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- WBC Tab Content -->
+        <div id="wbc" class="tab-content">
+            <p class="text-xl sm:text-2xl font-bold mb-6 text-gray-700">التحاليل المرتبطة بخلايا الدم البيضاء هي:</p>
+            <div class="grid gap-6">
+                <div class="analysis-card">
+                    <h3 class="analysis-title">1- كرياتُ الدمِ البيضاءِ (WBC) <span class="text-sm font-normal text-gray-500">White Blood Cells</span></h3>
+                    <p>وهي الخلايا التي تُشكّلُ خطَّ الدفاعِ الأولَ للجسمِ ضدَّ العدوى والأمراضِ، ويُعطي عددُها الكليُّ مؤشراً على قدرةِ الجهازِ المناعيِّ.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">2- عددُ الخلايا اللمفاويةِ (#Lymph) <span class="text-sm font-normal text-gray-500">Lymphocytes Count</span></h3>
+                    <p>وهو العددُ الفعليُّ للخلايا اللمفاويةِ في الدمِ، والتي تُعدُّ مسؤولةً عن الاستجابةِ المناعيةِ النوعيةِ ومكافحةِ الفيروساتِ بشكلٍ خاصٍّ.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">3- عددُ الخلايا المتوسطةِ (#Mid) <span class="text-sm font-normal text-gray-500">Monocytes / Others Count</span></h3>
+                    <p>وهو العددُ الفعليُّ لمجموعةٍ من الخلايا تشملُ الخلايا الأحاديةَ، والتي تُهاجمُ الجراثيمَ وتُزيلُ الخلايا الميتةَ في الجسمِ.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">4- عددُ الخلايا المحببةِ (#Gran) <span class="text-sm font-normal text-gray-500">Granulocytes Count</span></h3>
+                    <p>وهو العددُ الفعليُّ لمجموعةِ الخلايا المحببةِ، التي تُعَدُّ مهمةً في مكافحةِ العدوى البكتيريةِ والفطريةِ.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">5- نسبةُ الخلايا اللمفاويةِ (%Lymph) <span class="text-sm font-normal text-gray-500">Lymphocytes Percentage</span></h3>
+                    <p>وهي نسبةُ الخلايا اللمفاويةِ من إجماليِّ عددِ كرياتِ الدمِ البيضاءِ، وتُشيرُ إلى مدى وفرةِ هذهِ الخلايا في الدمِ.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">6- نسبةُ الخلايا المتوسطةِ (%Mid) <span class="text-sm font-normal text-gray-500">Mid Cells Percentage</span></h3>
+                    <p>وهي نسبةُ الخلايا المتوسطةِ من إجماليِّ عددِ كرياتِ الدمِ البيضاءِ.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">7- نسبةُ الخلايا المحببةِ (%Gran) <span class="text-sm font-normal text-gray-500">Granulocytes Percentage</span></h3>
+                    <p>وهي نسبةُ الخلايا المحببةِ من إجماليِّ عددِ كرياتِ الدمِ البيضاءِ.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Platelets Tab Content -->
+        <div id="platelets" class="tab-content">
+            <p class="text-xl sm:text-2xl font-bold mb-6 text-gray-700">التحاليل المرتبطة بالصفائح الدموية هي:</p>
+            <div class="grid gap-6">
+                <div class="analysis-card">
+                    <h3 class="analysis-title">1- عددُ الصفائحِ الدمويةِ (PLT) <span class="text-sm font-normal text-gray-500">Platelets Count</span></h3>
+                    <p>وهي أجزاءٌ صغيرةٌ من الخلايا لا لونَ لها، تُعَدُّ مسؤولةً عن تكوينِ الجلطاتِ الدمويةِ لوقفِ النزيفِ. ويُعدُّ عددُها مؤشراً على قدرةِ الدمِ على التجلُّطِ.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">2- الحجمُ الوسطيُّ للصفيحةِ (MPV) <span class="text-sm font-normal text-gray-500">Mean Platelet Volume</span></h3>
+                    <p>وهو مقياسٌ لمتوسطِ حجمِ الصفائحِ الدمويةِ. ويُفيدُ هذا المقياسُ في التمييزِ بينَ أسبابِ انخفاضِ عددِ الصفائحِ الدمويةِ.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">3- تباينُ حجمِ الصفائحِ (PDW) <span class="text-sm font-normal text-gray-500">Platelet Distribution Width</span></h3>
+                    <p>وهو مقياسٌ لمدى تباينِ واختلافِ أحجامِ الصفائحِ الدمويةِ. وتشيرُ القيمةُ المرتفعةُ إلى وجودِ تفاوتٍ كبيرٍ في أحجامِها.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">4- نسبةُ حجمِ الصفائحِ (PCT) <span class="text-sm font-normal text-gray-500">Plateletcrit</span></h3>
+                    <p>وهي نسبةُ الحجمِ الكليِّ الذي تشغلُهُ الصفائحُ الدمويةُ من إجماليِّ حجمِ الدمِ.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">5- عددُ الصفائحِ الكبيرةِ الحجمِ (P-LCC) <span class="text-sm font-normal text-gray-500">Platelet Large Cell Count</span></h3>
+                    <p>وهو العددُ الفعليُّ للصفائحِ الدمويةِ التي يكونُ حجمُها أكبرَ منَ المعتادِ. ويُمكنُ أن يُشيرَ ارتفاعُها إلى سرعةِ إنتاجِ الصفائحِ في نخاعِ العظمِ.</p>
+                </div>
+                <div class="analysis-card">
+                    <h3 class="analysis-title">6- نسبةُ الصفائحِ الكبيرةِ الحجمِ (P-LCR) <span class="text-sm font-normal text-gray-500">Platelet Large Cell Ratio</span></h3>
+                    <p>وهي نسبةُ الصفائحِ الكبيرةِ الحجمِ إلى العددِ الكليِّ للصفائحِ الدمويةِ.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final Note -->
+        <div class="mt-12 text-center p-6 rounded-lg border-2 border-[#d000fa] bg-fuchsia-100 shadow-lg">
+            <p class="text-lg font-bold text-fuchsia-800">
+                ملاحظة: هذهِ التحليلاتِ قد تختلفُ (بالزيادةِ أو النقصانِ) اعتمادًا على نوعِ الجهازِ المُستخدَمِ.
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            // Get all elements with class="tab-content" and hide them
+            var tabcontent = document.getElementsByClassName("tab-content");
+            for (var i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+
+            // Get all elements with class="tab-button" and remove the "active" class
+            var tabbuttons = document.getElementsByClassName("tab-button");
+            for (var i = 0; i < tabbuttons.length; i++) {
+                tabbuttons[i].className = tabbuttons[i].className.replace(" active", "");
+            }
+
+            // Show the current tab and add an "actملاحظاتُكَ المهمive" class to the button
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        // Initially open the RBC tab on page load
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelector('.tab-button').click();
+        });
+    </script>
+
+</body>
+</html>
