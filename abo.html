@@ -145,13 +145,21 @@
             </button>
         </div>
 
-        <div class="flex flex-col sm:flex-row justify-center items-center space-y-8 sm:space-y-0 sm:space-x-4">
-            <div id="reagent-a" class="reagent-drop-source" style="background-color: #3b82f6;" draggable="false"></div>
-            <div id="reagent-b" class="reagent-drop-source" style="background-color: #ef4444;" draggable="false"></div>
-            <div id="reagent-rh" class="reagent-drop-source" style="background-color: #10b981;" draggable="false"></div>
+        <!--
+            تم تغيير التخطيط ليكون أفقيًا دائمًا على جميع الشاشات
+            بدلاً من flex-col sm:flex-row
+        -->
+        <div class="flex justify-center items-center space-x-2">
+            <div id="reagent-a" class="reagent-drop-source" style="background-color: #3b82f6;" draggable="true"></div>
+            <div id="reagent-b" class="reagent-drop-source" style="background-color: #ef4444;" draggable="true"></div>
+            <div id="reagent-rh" class="reagent-drop-source" style="background-color: #10b981;" draggable="true"></div>
         </div>
 
-        <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 mt-8">
+        <!--
+            تم تغيير التخطيط ليكون أفقيًا دائمًا على جميع الشاشات
+            بدلاً من flex-col sm:flex-row
+        -->
+        <div class="flex justify-center items-center space-x-2 mt-8">
             <!-- Blood drop for Anti-A -->
             <div id="blood-area-a" class="blood-area p-4" data-reagent="a">
                 <span class="text-white text-center text-sm absolute top-4">مضاد A</span>
@@ -211,8 +219,9 @@
         const resetButton = document.getElementById('reset-button');
         const selectionButtons = document.querySelectorAll('.selection-button');
         const randomButton = document.getElementById('random-button');
-        let selectedAntigen = null;
-        let selectedRhFactor = null;
+
+        // متغيرات إضافية لدعم السحب والإفلات باللمس
+        let draggedElement = null;
 
         // Function to create a new blood drop
         function createAgglutinationClump(color) {
@@ -220,26 +229,6 @@
             clump.classList.add('agglutination-clump');
             clump.style.backgroundColor = color;
             return clump;
-        }
-
-        // Enable drag on reagents
-        function enableReagentDragging() {
-            reagentASource.draggable = true;
-            reagentBSource.draggable = true;
-            reagentRhSource.draggable = true;
-            reagentASource.style.cursor = 'pointer';
-            reagentBSource.style.cursor = 'pointer';
-            reagentRhSource.style.cursor = 'pointer';
-        }
-
-        // Disable drag on reagents
-        function disableReagentDragging() {
-            reagentASource.draggable = false;
-            reagentBSource.draggable = false;
-            reagentRhSource.draggable = false;
-            reagentASource.style.cursor = 'not-allowed';
-            reagentBSource.style.cursor = 'not-allowed';
-            reagentRhSource.style.cursor = 'not-allowed';
         }
 
         // Handle blood type selection
@@ -258,18 +247,20 @@
                 e.target.classList.add('selected-button');
                 e.target.classList.remove('bg-gray-300', 'text-gray-800');
                 
-                if (group === 'antigen') {
-                    selectedAntigen = type;
-                } else if (group === 'rh') {
-                    selectedRhFactor = type;
-                }
+                let selectedAntigen = null;
+                let selectedRhFactor = null;
+
+                // Check for selected buttons to set the blood type
+                const selectedAntigenBtn = document.querySelector('.selection-button[data-type-group="antigen"].selected-button');
+                const selectedRhBtn = document.querySelector('.selection-button[data-type-group="rh"].selected-button');
+
+                if (selectedAntigenBtn) selectedAntigen = selectedAntigenBtn.dataset.type;
+                if (selectedRhBtn) selectedRhFactor = selectedRhBtn.dataset.type;
                 
-                // If both antigen and Rh factor are selected, find the blood type and enable dragging
                 if (selectedAntigen && selectedRhFactor) {
                     currentBloodType = bloodTypes.find(bt => bt.antigen === selectedAntigen && bt.rhFactor === selectedRhFactor);
                     if (currentBloodType) {
                         resultDisplay.innerHTML = `<span class="text-gray-800 fade-in">تم اختيار فصيلة الدم: ${currentBloodType.type}. الآن اسحب الكواشف.</span>`;
-                        enableReagentDragging();
                     }
                 }
             });
@@ -280,42 +271,94 @@
             const randomIndex = Math.floor(Math.random() * bloodTypes.length);
             currentBloodType = bloodTypes[randomIndex];
             resultDisplay.innerHTML = `<span class="text-gray-800 fade-in">تم اختيار فصيلة الدم عشوائياً. الآن اسحب الكواشف.</span>`;
-            disableSelectionButtons();
-            enableReagentDragging();
+            
+            // إزالة حالة التحديد من الأزرار الأخرى
+            selectionButtons.forEach(btn => {
+                btn.classList.remove('selected-button');
+                btn.classList.add('bg-gray-300', 'text-gray-800');
+            });
         });
 
-        function disableSelectionButtons() {
-            selectionButtons.forEach(btn => {
-                btn.disabled = true;
-                btn.classList.add('opacity-50', 'cursor-not-allowed');
-                btn.classList.remove('selected-button', 'bg-gray-300', 'text-gray-800'); // Ensure selected state and default colors are cleared
-            });
-            randomButton.disabled = true;
-            randomButton.classList.add('opacity-50', 'cursor-not-allowed');
-        }
-
-        // Function to handle the drag start event for reagents
+        // --- وظائف السحب والإفلات (الآن تدعم اللمس) ---
+        // Function to handle the drag start event for reagents (Mouse)
         document.querySelectorAll('.reagent-drop-source').forEach(reagent => {
             reagent.addEventListener('dragstart', (e) => {
-                if (!currentBloodType) {
-                    e.preventDefault();
-                    resultDisplay.innerHTML = `<span class="text-red-500 fade-in">الرجاء اختيار فصيلة دم أولاً!</span>`;
-                    return;
-                }
-                const reagentId = e.target.id.split('-')[1];
-                if (!reagentsDropped[reagentId]) {
-                    e.dataTransfer.setData('text/plain', reagentId);
-                    e.target.style.opacity = '0.7';
-                } else {
-                    e.preventDefault();
-                }
+                e.dataTransfer.setData('text/plain', e.target.id.split('-')[1]);
+                e.target.style.opacity = '0.7';
             });
             reagent.addEventListener('dragend', (e) => {
                 e.target.style.opacity = '1';
             });
         });
 
-        // Function to handle the dragover event on the blood areas
+        // Function to handle touch start for dragging (Mobile)
+        document.querySelectorAll('.reagent-drop-source').forEach(reagent => {
+            reagent.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                draggedElement = e.target;
+                draggedElement.style.opacity = '0.7';
+                draggedElement.style.transition = 'none'; // تعطيل الانتقال أثناء السحب
+                draggedElement.style.position = 'fixed';
+            });
+        });
+
+        // Function to handle touch move (Mobile)
+        document.body.addEventListener('touchmove', (e) => {
+            if (draggedElement) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                draggedElement.style.left = `${touch.clientX - draggedElement.offsetWidth / 2}px`;
+                draggedElement.style.top = `${touch.clientY - draggedElement.offsetHeight / 2}px`;
+
+                // Highlight drop areas on hover
+                document.querySelectorAll('.blood-area').forEach(area => {
+                    const rect = area.getBoundingClientRect();
+                    if (
+                        touch.clientX > rect.left && touch.clientX < rect.right &&
+                        touch.clientY > rect.top && touch.clientY < rect.bottom
+                    ) {
+                        area.classList.add('shining-border');
+                    } else {
+                        area.classList.remove('shining-border');
+                    }
+                });
+            }
+        });
+
+        // Function to handle touch end (Mobile)
+        document.body.addEventListener('touchend', (e) => {
+            if (draggedElement) {
+                const touch = e.changedTouches[0];
+                let dropped = false;
+
+                document.querySelectorAll('.blood-area').forEach(area => {
+                    area.classList.remove('shining-border');
+                    const rect = area.getBoundingClientRect();
+                    if (
+                        touch.clientX > rect.left && touch.clientX < rect.right &&
+                        touch.clientY > rect.top && touch.clientY < rect.bottom
+                    ) {
+                        // Simulate a drop event
+                        const reagentType = draggedElement.id.split('-')[1];
+                        const targetReagent = area.dataset.reagent;
+                        if (reagentType === targetReagent) {
+                            handleDropManual(reagentType, area);
+                            dropped = true;
+                        }
+                    }
+                });
+
+                // Reset element position and state
+                draggedElement.style.position = 'static';
+                draggedElement.style.transform = 'none';
+                draggedElement.style.opacity = '1';
+                draggedElement.style.left = '';
+                draggedElement.style.top = '';
+                draggedElement = null;
+            }
+        });
+
+        // Function to handle the dragover event on the blood areas (Mouse)
         document.querySelectorAll('.blood-area').forEach(area => {
             area.addEventListener('dragover', (e) => {
                 e.preventDefault();
@@ -327,7 +370,7 @@
             area.addEventListener('drop', handleDrop);
         });
 
-        // Function to handle the drop event on the blood area
+        // Function to handle the drop event (Mouse)
         function handleDrop(e) {
             e.preventDefault();
             const bloodArea = e.currentTarget;
@@ -337,7 +380,7 @@
             bloodArea.classList.remove('shining-border');
 
             if (reagentType !== targetReagent || reagentsDropped[reagentType]) {
-                return; // Prevent dropping the wrong reagent or dropping the same one twice
+                return;
             }
             
             reagentsDropped[reagentType] = true;
@@ -345,7 +388,26 @@
             reagentSource.style.opacity = '0.5';
             reagentSource.style.cursor = 'not-allowed';
 
-            // Simulate the reaction and update state
+            // Simulate the reaction
+            simulateReaction(reagentType, bloodArea);
+        }
+
+        // Function to handle drop event from touch (Manual)
+        function handleDropManual(reagentType, bloodArea) {
+            if (reagentsDropped[reagentType]) {
+                return;
+            }
+
+            reagentsDropped[reagentType] = true;
+            const reagentSource = document.getElementById('reagent-' + reagentType);
+            reagentSource.style.opacity = '0.5';
+            reagentSource.style.cursor = 'not-allowed';
+            
+            // Simulate the reaction
+            simulateReaction(reagentType, bloodArea);
+        }
+
+        function simulateReaction(reagentType, bloodArea) {
             let isAgglutinated = false;
             switch (reagentType) {
                 case 'a':
@@ -423,16 +485,16 @@
             resultDisplay.innerHTML = `<span class="text-gray-500">قم بإجراء الاختبار لتحديد الفصيلة</span>`;
             
             currentBloodType = null;
-            selectedAntigen = null;
-            selectedRhFactor = null;
             reagentsDropped = { a: false, b: false, rh: false };
             reactions = { a: false, b: false, rh: false };
 
             reagentASource.style.opacity = '1';
             reagentBSource.style.opacity = '1';
             reagentRhSource.style.opacity = '1';
-
-            disableReagentDragging();
+            reagentASource.draggable = true;
+            reagentBSource.draggable = true;
+            reagentRhSource.draggable = true;
+            
             selectionButtons.forEach(btn => {
                 btn.disabled = false;
                 btn.classList.remove('opacity-50', 'cursor-not-allowed', 'selected-button');
@@ -442,8 +504,14 @@
             randomButton.classList.remove('opacity-50', 'cursor-not-allowed');
         });
 
-        // Initialize drag state on page load
-        disableReagentDragging();
+        // --- وظيفة التهيئة التلقائية ---
+        // يتم استدعاء هذه الوظيفة عند تحميل الصفحة
+        function initApp() {
+            // اختيار فصيلة دم عشوائية تلقائيًا
+            randomButton.click();
+        }
+
+        window.onload = initApp;
         
     </script>
 </body>
