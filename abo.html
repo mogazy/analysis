@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحليل فصائل الدم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .gradient-text {
+            background-image: linear-gradient(to right, #d000fa, #6d07ba);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .reagent-drop-source {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+            position: relative;
+        }
+        .reagent-drop-source:before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 15px;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+        }
+        .blood-area {
+            width: 160px;
+            height: 160px;
+            background-color: #ef4444; /* لون الدم */
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-content: center;
+            border: 2px dashed #94a3b8;
+            transition: all 0.3s ease-in-out;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        .agglutination-clump {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background-color: #b91c1c;
+            opacity: 0.8;
+            margin: 2px;
+            transition: transform 0.3s ease-in-out;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .agglutination-effect {
+            animation: pulse 1s infinite alternate;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+        .shining-border {
+            border-color: #d000fa;
+            box-shadow: 0 0 15px #d000fa;
+        }
+        .result-text {
+            font-size: 1.75rem; /* حجم خط كبير للنتيجة */
+            font-weight: bold;
+        }
+        .selection-button {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s, color 0.2s;
+        }
+        .selection-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .selected-button {
+            background-color: #6d07ba;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-200 p-4 sm:p-8 flex items-center justify-center min-h-screen">
+
+    <div id="main-container" class="container max-w-lg w-full p-6 sm:p-8 space-y-8">
+        <h1 class="text-3xl sm:text-4xl text-center font-extrabold gradient-text">تحليل فصائل الدم</h1>
+        
+        <p class="text-gray-600 text-center leading-relaxed">
+            استكشف كيفية تحديد فصيلة الدم A, B, AB, O عن طريق تفاعل قطرات الدم مع الكواشف (مضاد A, مضاد B, مضاد D). أولاً، اختر فصيلة دم أو قم باختيار عشوائي.
+        </p>
+        
+        <!-- Explanation div -->
+        <div class="container p-6 sm:p-8 space-y-4">
+            <h2 class="text-2xl font-bold gradient-text">كيف يعمل تحليل فصيلة الدم؟</h2>
+            <p class="text-gray-600 leading-relaxed">
+                يتم تحديد فصيلة الدم بناءً على وجود أو غياب مستضدات معينة (بروتينات) على سطح خلايا الدم الحمراء.
+                <br>
+                في هذا الاختبار، يتم إضافة كواشف مختلفة تحتوي على أجسام مضادة (Anti-A, Anti-B, Anti-D) إلى عينات منفصلة من الدم.
+            </p>
+            <ul class="list-disc list-inside text-gray-600 leading-relaxed space-y-2">
+                <li><strong class="text-gray-800">تفاعل التلازن (Agglutination):</strong> إذا حدث تفاعل (تكتل أو تجلط) فهذا يعني أن مستضد الدم قد تفاعل مع الجسم المضاد في الكاشف. هذا هو ما يحدد نوع الفصيلة.</li>
+                <li><strong class="text-gray-800">مضاد A:</strong> يسبب تجلطاً إذا كانت فصيلة الدم تحتوي على المستضد A.</li>
+                <li><strong class="text-gray-800">مضاد B:</strong> يسبب تجلطاً إذا كانت فصيلة الدم تحتوي على المستضد B.</li>
+                <li><strong class="text-gray-800">مضاد D (Rh):</strong> يسبب تجلطاً إذا كانت فصيلة الدم إيجابية Rh (+).</li>
+            </ul>
+        </div>
+
+        <!-- Blood Type Selection -->
+        <div id="selection-container" class="p-6 bg-gray-100 rounded-lg space-y-4 text-center">
+            <p class="font-bold text-gray-700">اختر فصيلة الدم:</p>
+            <div class="flex justify-center space-x-2">
+                <button class="selection-button bg-gray-300 text-gray-800" data-type-group="antigen" data-type="A">A</button>
+                <button class="selection-button bg-gray-300 text-gray-800" data-type-group="antigen" data-type="B">B</button>
+                <button class="selection-button bg-gray-300 text-gray-800" data-type-group="antigen" data-type="AB">AB</button>
+                <button class="selection-button bg-gray-300 text-gray-800" data-type-group="antigen" data-type="O">O</button>
+            </div>
+            <div class="flex justify-center space-x-2">
+                <button class="selection-button bg-gray-300 text-gray-800" data-type-group="rh" data-type="+">+</button>
+                <button class="selection-button bg-gray-300 text-gray-800" data-type-group="rh" data-type="-">-</button>
+            </div>
+            <button id="random-button" class="w-full py-2 px-4 text-white font-bold rounded-lg shadow-lg" style="background-image: linear-gradient(to right, #d000fa, #6d07ba);">
+                اختر عشوائياً
+            </button>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-center items-center space-y-8 sm:space-y-0 sm:space-x-4">
+            <div id="reagent-a" class="reagent-drop-source" style="background-color: #3b82f6;" draggable="false"></div>
+            <div id="reagent-b" class="reagent-drop-source" style="background-color: #ef4444;" draggable="false"></div>
+            <div id="reagent-rh" class="reagent-drop-source" style="background-color: #10b981;" draggable="false"></div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 mt-8">
+            <!-- Blood drop for Anti-A -->
+            <div id="blood-area-a" class="blood-area p-4" data-reagent="a">
+                <span class="text-white text-center text-sm absolute top-4">مضاد A</span>
+            </div>
+            <!-- Blood drop for Anti-B -->
+            <div id="blood-area-b" class="blood-area p-4" data-reagent="b">
+                <span class="text-white text-center text-sm absolute top-4">مضاد B</span>
+            </div>
+            <!-- Blood drop for Anti-Rh -->
+            <div id="blood-area-rh" class="blood-area p-4" data-reagent="rh">
+                <span class="text-white text-center text-sm absolute top-4">مضاد D (Rh)</span>
+            </div>
+        </div>
+
+        <div id="result-display" class="blood-type-display mt-8">
+            <span class="text-gray-500">قم بإجراء الاختبار لتحديد الفصيلة</span>
+        </div>
+
+        <button id="reset-button" class="w-full py-3 px-6 text-white font-bold rounded-lg mt-4 shadow-lg transition-all transform hover:scale-105" style="background-image: linear-gradient(to right, #d000fa, #6d07ba);">
+            إعادة تعيين
+        </button>
+    </div>
+
+    <script>
+        // Array of predefined blood types with their reactions
+        const bloodTypes = [
+            { type: 'A+', a: true, b: false, rh: true, antigen: 'A', rhFactor: '+' },
+            { type: 'A-', a: true, b: false, rh: false, antigen: 'A', rhFactor: '-' },
+            { type: 'B+', a: false, b: true, rh: true, antigen: 'B', rhFactor: '+' },
+            { type: 'B-', a: false, b: true, rh: false, antigen: 'B', rhFactor: '-' },
+            { type: 'AB+', a: true, b: true, rh: true, antigen: 'AB', rhFactor: '+' },
+            { type: 'AB-', a: true, b: true, rh: false, antigen: 'AB', rhFactor: '-' },
+            { type: 'O+', a: false, b: false, rh: true, antigen: 'O', rhFactor: '+' },
+            { type: 'O-', a: false, b: false, rh: false, antigen: 'O', rhFactor: '-' }
+        ];
+
+        // Global state for the current experiment
+        let currentBloodType = null;
+        let reactions = {
+            a: false,
+            b: false,
+            rh: false
+        };
+        let reagentsDropped = {
+            a: false,
+            b: false,
+            rh: false
+        };
+
+        const reagentASource = document.getElementById('reagent-a');
+        const reagentBSource = document.getElementById('reagent-b');
+        const reagentRhSource = document.getElementById('reagent-rh');
+        const bloodAreaA = document.getElementById('blood-area-a');
+        const bloodAreaB = document.getElementById('blood-area-b');
+        const bloodAreaRh = document.getElementById('blood-area-rh');
+        const resultDisplay = document.getElementById('result-display');
+        const resetButton = document.getElementById('reset-button');
+        const selectionButtons = document.querySelectorAll('.selection-button');
+        const randomButton = document.getElementById('random-button');
+        let selectedAntigen = null;
+        let selectedRhFactor = null;
+
+        // Function to create a new blood drop
+        function createAgglutinationClump(color) {
+            const clump = document.createElement('div');
+            clump.classList.add('agglutination-clump');
+            clump.style.backgroundColor = color;
+            return clump;
+        }
+
+        // Enable drag on reagents
+        function enableReagentDragging() {
+            reagentASource.draggable = true;
+            reagentBSource.draggable = true;
+            reagentRhSource.draggable = true;
+            reagentASource.style.cursor = 'pointer';
+            reagentBSource.style.cursor = 'pointer';
+            reagentRhSource.style.cursor = 'pointer';
+        }
+
+        // Disable drag on reagents
+        function disableReagentDragging() {
+            reagentASource.draggable = false;
+            reagentBSource.draggable = false;
+            reagentRhSource.draggable = false;
+            reagentASource.style.cursor = 'not-allowed';
+            reagentBSource.style.cursor = 'not-allowed';
+            reagentRhSource.style.cursor = 'not-allowed';
+        }
+
+        // Handle blood type selection
+        selectionButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const type = e.target.dataset.type;
+                const group = e.target.dataset.typeGroup;
+
+                // Remove selected class from all buttons in the same group and revert to default styling
+                document.querySelectorAll(`.selection-button[data-type-group="${group}"]`).forEach(btn => {
+                    btn.classList.remove('selected-button');
+                    btn.classList.add('bg-gray-300', 'text-gray-800');
+                });
+                
+                // Add selected class to the clicked button and remove default styling
+                e.target.classList.add('selected-button');
+                e.target.classList.remove('bg-gray-300', 'text-gray-800');
+                
+                if (group === 'antigen') {
+                    selectedAntigen = type;
+                } else if (group === 'rh') {
+                    selectedRhFactor = type;
+                }
+                
+                // If both antigen and Rh factor are selected, find the blood type and enable dragging
+                if (selectedAntigen && selectedRhFactor) {
+                    currentBloodType = bloodTypes.find(bt => bt.antigen === selectedAntigen && bt.rhFactor === selectedRhFactor);
+                    if (currentBloodType) {
+                        resultDisplay.innerHTML = `<span class="text-gray-800 fade-in">تم اختيار فصيلة الدم: ${currentBloodType.type}. الآن اسحب الكواشف.</span>`;
+                        enableReagentDragging();
+                    }
+                }
+            });
+        });
+
+        // Handle random selection
+        randomButton.addEventListener('click', () => {
+            const randomIndex = Math.floor(Math.random() * bloodTypes.length);
+            currentBloodType = bloodTypes[randomIndex];
+            resultDisplay.innerHTML = `<span class="text-gray-800 fade-in">تم اختيار فصيلة الدم عشوائياً. الآن اسحب الكواشف.</span>`;
+            disableSelectionButtons();
+            enableReagentDragging();
+        });
+
+        function disableSelectionButtons() {
+            selectionButtons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                btn.classList.remove('selected-button', 'bg-gray-300', 'text-gray-800'); // Ensure selected state and default colors are cleared
+            });
+            randomButton.disabled = true;
+            randomButton.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+
+        // Function to handle the drag start event for reagents
+        document.querySelectorAll('.reagent-drop-source').forEach(reagent => {
+            reagent.addEventListener('dragstart', (e) => {
+                if (!currentBloodType) {
+                    e.preventDefault();
+                    resultDisplay.innerHTML = `<span class="text-red-500 fade-in">الرجاء اختيار فصيلة دم أولاً!</span>`;
+                    return;
+                }
+                const reagentId = e.target.id.split('-')[1];
+                if (!reagentsDropped[reagentId]) {
+                    e.dataTransfer.setData('text/plain', reagentId);
+                    e.target.style.opacity = '0.7';
+                } else {
+                    e.preventDefault();
+                }
+            });
+            reagent.addEventListener('dragend', (e) => {
+                e.target.style.opacity = '1';
+            });
+        });
+
+        // Function to handle the dragover event on the blood areas
+        document.querySelectorAll('.blood-area').forEach(area => {
+            area.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                area.classList.add('shining-border');
+            });
+            area.addEventListener('dragleave', (e) => {
+                area.classList.remove('shining-border');
+            });
+            area.addEventListener('drop', handleDrop);
+        });
+
+        // Function to handle the drop event on the blood area
+        function handleDrop(e) {
+            e.preventDefault();
+            const bloodArea = e.currentTarget;
+            const reagentType = e.dataTransfer.getData('text/plain');
+            const targetReagent = bloodArea.dataset.reagent;
+
+            bloodArea.classList.remove('shining-border');
+
+            if (reagentType !== targetReagent || reagentsDropped[reagentType]) {
+                return; // Prevent dropping the wrong reagent or dropping the same one twice
+            }
+            
+            reagentsDropped[reagentType] = true;
+            const reagentSource = document.getElementById('reagent-' + reagentType);
+            reagentSource.style.opacity = '0.5';
+            reagentSource.style.cursor = 'not-allowed';
+
+            // Simulate the reaction and update state
+            let isAgglutinated = false;
+            switch (reagentType) {
+                case 'a':
+                    isAgglutinated = currentBloodType.a;
+                    reactions.a = isAgglutinated;
+                    break;
+                case 'b':
+                    isAgglutinated = currentBloodType.b;
+                    reactions.b = isAgglutinated;
+                    break;
+                case 'rh':
+                    isAgglutinated = currentBloodType.rh;
+                    reactions.rh = isAgglutinated;
+                    break;
+            }
+
+            if (isAgglutinated) {
+                bloodArea.innerHTML = ''; // Clear text
+                // Create multiple small clumps for a clearer visual effect
+                for (let i = 0; i < 15; i++) {
+                    const clump = createAgglutinationClump('#b91c1c');
+                    bloodArea.appendChild(clump);
+                }
+                bloodArea.classList.add('agglutination-effect');
+            } else {
+                // If no agglutination, just keep the original state and add a message
+                bloodArea.innerHTML = `<span class="text-white text-center text-sm absolute top-4">لا يوجد تجلط</span>`;
+            }
+
+            // Check if all reagents have been dropped and display the final result
+            if (reagentsDropped.a && reagentsDropped.b && reagentsDropped.rh) {
+                setTimeout(updateResult, 1000);
+            } else if (reagentsDropped.a || reagentsDropped.b || reagentsDropped.rh) {
+                resultDisplay.innerHTML = `<span class="fade-in text-gray-800">تمت إضافة المضاد بنجاح!</span>`;
+            }
+        }
+
+        function updateResult() {
+            let resultText = '';
+            
+            // Determine the blood type based on the reactions
+            const foundType = bloodTypes.find(type => 
+                type.a === reactions.a &&
+                type.b === reactions.b &&
+                type.rh === reactions.rh
+            );
+            
+            if (foundType) {
+                resultText = `فصيلة الدم هي: ${foundType.type}`;
+            } else {
+                resultText = `لا يمكن تحديد الفصيلة.`;
+            }
+
+            resultDisplay.innerHTML = `<span class="fade-in result-text">${resultText}</span>`;
+        }
+        
+        // Function to reset the experiment
+        resetButton.addEventListener('click', () => {
+            bloodAreaA.innerHTML = `<span class="text-white text-center text-sm absolute top-4">مضاد A</span>`;
+            bloodAreaB.innerHTML = `<span class="text-white text-center text-sm absolute top-4">مضاد B</span>`;
+            bloodAreaRh.innerHTML = `<span class="text-white text-center text-sm absolute top-4">مضاد D (Rh)</span>`;
+
+            bloodAreaA.classList.remove('agglutination-effect');
+            bloodAreaB.classList.remove('agglutination-effect');
+            bloodAreaRh.classList.remove('agglutination-effect');
+            
+            bloodAreaA.style.backgroundColor = '#ef4444';
+            bloodAreaB.style.backgroundColor = '#ef4444';
+            bloodAreaRh.style.backgroundColor = '#ef4444';
+
+            bloodAreaA.style.border = '2px dashed #94a3b8';
+            bloodAreaB.style.border = '2px dashed #94a3b8';
+            bloodAreaRh.style.border = '2px dashed #94a3b8';
+            
+            resultDisplay.innerHTML = `<span class="text-gray-500">قم بإجراء الاختبار لتحديد الفصيلة</span>`;
+            
+            currentBloodType = null;
+            selectedAntigen = null;
+            selectedRhFactor = null;
+            reagentsDropped = { a: false, b: false, rh: false };
+            reactions = { a: false, b: false, rh: false };
+
+            reagentASource.style.opacity = '1';
+            reagentBSource.style.opacity = '1';
+            reagentRhSource.style.opacity = '1';
+
+            disableReagentDragging();
+            selectionButtons.forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed', 'selected-button');
+                btn.classList.add('bg-gray-300', 'text-gray-800'); // Ensure default colors are applied on reset
+            });
+            randomButton.disabled = false;
+            randomButton.classList.remove('opacity-50', 'cursor-not-allowed');
+        });
+
+        // Initialize drag state on page load
+        disableReagentDragging();
+        
+    </script>
+</body>
+</html>
