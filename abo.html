@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحليل فصائل الدم</title>
+    <title>اختبار فصائل الدم</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
@@ -21,10 +21,9 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        /* Style for reagent sources - now with fixed aspect ratio */
         .reagent-drop-source {
             width: 100%;
-            aspect-ratio: 1 / 1; /* This ensures a perfect square shape */
+            aspect-ratio: 1 / 1;
             position: relative;
             border-radius: 50%;
             transition: all 0.3s ease-in-out;
@@ -38,7 +37,7 @@
             cursor: pointer;
             color: white;
             font-size: 1rem;
-            background-color: #3b82f6; /* Default color */
+            background-color: #3b82f6;
         }
         .reagent-drop-source span {
             position: absolute;
@@ -57,7 +56,6 @@
             background: rgba(255, 255, 255, 0.4);
             border-radius: 50%;
         }
-        /* Style for blood areas container */
         .blood-area {
             display: flex;
             flex-direction: column;
@@ -65,23 +63,19 @@
             justify-content: center;
             text-align: center;
         }
-        /* Updated styles for a responsive, circular image with smaller border */
         .blood-image {
             width: 100%;
             aspect-ratio: 1 / 1;
             border-radius: 50%;
-            border: 2px solid #6d07ba; /* Changed border width to 2px */
+            border: 2px solid #6d07ba;
             object-fit: cover;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            /* Set initial rotation from a custom property */
             transform: rotate(var(--random-rotation, 0deg));
             transition: all 0.3s ease-in-out;
         }
         .agglutination-effect {
-            /* Now the animation scales, while preserving the rotation from the custom property */
             animation: pulse 1s infinite alternate;
         }
-        /* Modified keyframes to work with the custom property */
         @keyframes pulse {
             from { transform: scale(1) rotate(var(--random-rotation, 0deg)); }
             to { transform: scale(1.1) rotate(var(--random-rotation, 0deg)); }
@@ -90,23 +84,22 @@
             font-size: 1.75rem;
             font-weight: bold;
         }
-        .selection-button {
+        .selection-button, .guess-button {
             padding: 0.5rem 1rem;
             border-radius: 9999px;
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s, color 0.2s;
         }
-        .selection-button:hover {
+        .selection-button:hover, .guess-button:hover {
             transform: scale(1.05);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .selected-button {
             background-color: #6d07ba;
             color: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 44px 6px rgba(0, 0, 0, 0.1);
         }
-        /* Styles for the arrow buttons */
         .arrow-button {
             width: 48px;
             height: 48px;
@@ -130,11 +123,18 @@
             transform: none;
             box-shadow: none;
         }
+        .correct-guess {
+            background-color: #22c55e;
+            color: white;
+        }
+        .incorrect-guess {
+            background-color: #ef4444;
+            color: white;
+        }
     </style>
 </head>
 <body class="bg-gray-200 p-4 sm:p-8 flex items-center justify-center min-h-screen">
-  
-              <a href="https://mogazy.github.io/analysis/">
+                <a href="https://mogazy.github.io/analysis/">
     <header class="fixed top-0 right-0 left-0 z-50 bg-gradient-to-l from-[#d000fa] to-[#6d07ba] text-white p-4 text-center rounded-b-3xl header-intense-shadow">
         <div class="max-w-2xl mx-auto w-full">
             <span class="text-white text-lg font-bold">
@@ -211,39 +211,31 @@ border-bottom-right-radius: 2rem;
 </script>
 
    
-    
-    <!-- A new wrapper div to stack the app and explanation vertically -->
     <div class="flex flex-col items-center w-full max-w-lg">
-        <div id="main-container" class="container w-full p-6 sm:p-8 space-y-8">
-            <h1 class="text-3xl sm:text-4xl text-center font-extrabold gradient-text">تحليل فصائل الدم</h1>
+        
+        <!-- New div for the main title and description -->
+        <div class="container w-full p-6 sm:p-8 space-y-4 text-center">
+            <h1 class="text-3xl sm:text-4xl font-extrabold gradient-text">اختبار فصائل الدم</h1>
+            <p class="text-gray-600 leading-relaxed">
+                يُحدد هذا الاختبار فصيلة الدم من خلال التفاعلات بين الأجسام المضادة والمستضدات على سطح خلايا الدم الحمراء.
+            </p>
+        </div>
+        
+        <!-- The main interactive section is now below the new title div -->
+        <div id="main-container" class="container w-full p-6 sm:p-8 space-y-8 mt-8">
             
-            <p class="text-gray-600 text-center leading-relaxed">
-                استكشف كيفية تحديد فصيلة الدم A, B, AB, O عن طريق تفاعل قطرات الدم مع الكواشف (مضاد A, مضاد B, مضاد D). أولاً، اختر فصيلة دم أو قم باختيار عشوائي.
+            <!-- Score Display -->
+            <div id="score-display" class="p-4 bg-gray-100 rounded-lg text-center">
+                <span class="text-gray-700 font-bold">النتيجة: </span>
+                <span id="current-score" class="text-2xl font-bold gradient-text">0</span>
+                <span id="total-games" class="text-xs text-gray-500">/ 0</span>
+            </div>
+
+            <!-- This div contains the game status text and has been moved -->
+            <p id="game-status-text" class="text-gray-600 text-center leading-relaxed">
+                استخدم الأسهم لإسقاط الكواشف على قطرات الدم.
             </p>
             
-            <!-- Blood Type Selection -->
-            <div id="selection-container" class="p-6 bg-gray-100 rounded-lg space-y-4 text-center">
-                <p class="font-bold text-gray-700">اختر فصيلة الدم:</p>
-                <div class="flex flex-wrap justify-center gap-2">
-                    <button class="selection-button bg-gray-300 text-gray-800" data-type-group="antigen" data-type="A">A</button>
-                    <button class="selection-button bg-gray-300 text-gray-800" data-type-group="antigen" data-type="B">B</button>
-                    <button class="selection-button bg-gray-300 text-gray-800" data-type-group="antigen" data-type="AB">AB</button>
-                    <button class="selection-button bg-gray-300 text-gray-800" data-type-group="antigen" data-type="O">O</button>
-                </div>
-                <div class="flex flex-wrap justify-center gap-2">
-                    <button class="selection-button bg-gray-300 text-gray-800" data-type-group="rh" data-type="+">+</button>
-                    <button class="selection-button bg-gray-300 text-gray-800" data-type-group="rh" data-type="-">-</button>
-                </div>
-                <button id="random-and-reset-button" class="w-full py-2 px-4 text-white font-bold rounded-lg shadow-lg" style="background-image: linear-gradient(to right, #d000fa, #6d07ba);">
-                    اختر فصيلة عشوائياً وابدأ من جديد
-                </button>
-            </div>
-
-            <!-- Result Display is now below the selection buttons -->
-            <div id="result-display" class="blood-type-display mt-8 text-center">
-                <span class="text-gray-500">قم بإجراء الاختبار لتحديد الفصيلة</span>
-            </div>
-
             <!-- Reagents Container -->
             <div class="flex justify-center items-center gap-4 mt-8">
                 <div id="reagent-a" class="reagent-drop-source" style="background-color: #3b82f6;">
@@ -257,7 +249,7 @@ border-bottom-right-radius: 2rem;
                 </div>
             </div>
 
-            <!-- New Arrow Buttons Container -->
+            <!-- Arrow Buttons Container -->
             <div class="flex justify-center items-center gap-4 mt-4">
                 <button id="drop-a-button" class="arrow-button">
                     <span>↓</span>
@@ -272,7 +264,6 @@ border-bottom-right-radius: 2rem;
 
             <!-- Blood Areas Container with Images -->
             <div class="flex justify-center items-start gap-4 mt-4">
-                <!-- Added a responsive class 'w-24' to the blood area container to help with scaling -->
                 <div id="blood-area-a" class="blood-area w-24" data-reagent="a">
                     <img id="blood-img-a" src="https://envs.sh/FiS.jpg" alt="قطرة دم" class="blood-image">
                     <span id="blood-text-a" class="mt-2 text-gray-600">قطرة دم 1</span>
@@ -286,9 +277,25 @@ border-bottom-right-radius: 2rem;
                     <span id="blood-text-rh" class="mt-2 text-gray-600">قطرة دم 3</span>
                 </div>
             </div>
+
+            <!-- Guessing Section -->
+            <div id="guess-section" class="p-6 bg-gray-100 rounded-lg space-y-4 text-center hidden">
+                <p class="font-bold text-gray-700">اختر فصيلة الدم:</p>
+                <div class="flex flex-wrap justify-center gap-2">
+                    <button class="guess-button bg-gray-300 text-gray-800" data-type="A+">A+</button>
+                    <button class="guess-button bg-gray-300 text-gray-800" data-type="A-">A-</button>
+                    <button class="guess-button bg-gray-300 text-gray-800" data-type="B+">B+</button>
+                    <button class="guess-button bg-gray-300 text-gray-800" data-type="B-">B-</button>
+                    <button class="guess-button bg-gray-300 text-gray-800" data-type="AB+">AB+</button>
+                    <button class="guess-button bg-gray-300 text-gray-800" data-type="AB-">AB-</button>
+                    <button class="guess-button bg-gray-300 text-gray-800" data-type="O+">O+</button>
+                    <button class="guess-button bg-gray-300 text-gray-800" data-type="O-">O-</button>
+                </div>
+                <p id="guess-feedback" class="font-bold text-lg"></p>
+            </div>
         </div>
-        
-        <!-- The new language note div, added before the explanation div -->
+
+        <!-- The language note div is still in its place -->
         <div class="container w-full p-6 sm:p-8 space-y-4 mt-8 border border-purple-500" style="background-image: linear-gradient(to bottom right, #e9d5ff, #ffffff);">
             <p class="text-gray-800 leading-relaxed text-right">
                 <strong class="text-xl font-bold">ملاحظةٌ لغويةٌ:</strong>
@@ -296,13 +303,12 @@ border-bottom-right-radius: 2rem;
                 إنَّ لفظَ "تلازُن" هو مصطلحٌ حديثٌ لا أصلَ لهُ في العربيةِ الفصيحةِ، ويُستَخدَمُ في بعضِ السياقاتِ العلميةِ للدلالةِ على التكتُّلِ أو التجمُّعِ، وهو يختلفُ عن لفظِ "تلازم"، الذي يعني الارتباطَ والتقارنَ بينَ شيئينِ لا ينفصلانِ. <span class="font-bold underline">إنَّ قصورَ جهودِ اللغويينَ المعاصرينَ يُسهِمُ في إقحامِ ألفاظٍ لا أصولَ لها في اللغةِ.</span>
             </p>
         </div>
-            
-        <!-- Explanation div is now a sibling, but inside the new wrapper -->
+        
+        <!-- Explanation text is now at the very bottom -->
         <div class="container w-full p-6 sm:p-8 space-y-4 mt-8">
             <h2 class="text-2xl font-bold gradient-text">كيف يعمل تحليل فصيلة الدم؟</h2>
             <p class="text-gray-600 leading-relaxed">
                 يتم تحديد فصيلة الدم بناءً على وجود أو غياب مستضدات معينة (بروتينات) على سطح خلايا الدم الحمراء.
-                <br>
                 في هذا الاختبار، يتم إضافة كواشف مختلفة تحتوي على أجسام مضادة (Anti-A, Anti-B, Anti-D) إلى عينات منفصلة من الدم.
             </p>
             <ul class="list-disc list-inside text-gray-600 leading-relaxed space-y-2">
@@ -327,7 +333,7 @@ border-bottom-right-radius: 2rem;
             { type: 'O-', a: false, b: false, rh: false, antigen: 'O', rhFactor: '-' }
         ];
 
-        // Global state for the current experiment
+        // Global state for the game
         let currentBloodType = null;
         let reactions = {
             a: false,
@@ -339,6 +345,8 @@ border-bottom-right-radius: 2rem;
             b: false,
             rh: false
         };
+        let correctGuesses = 0; // Renamed score to correctGuesses for clarity
+        let totalGames = 0;
         const imageNormal = "https://envs.sh/FiS.jpg";
         const imageAgglutination = "https://envs.sh/FiW.jpg";
 
@@ -351,191 +359,159 @@ border-bottom-right-radius: 2rem;
             });
         }
         
-        // Call preload on script load
-        preloadImages();
-
         // DOM elements
-        const reagentASource = document.getElementById('reagent-a');
-        const reagentBSource = document.getElementById('reagent-b');
-        const reagentRhSource = document.getElementById('reagent-rh');
         const bloodImgA = document.getElementById('blood-img-a');
         const bloodImgB = document.getElementById('blood-img-b');
         const bloodImgRh = document.getElementById('blood-img-rh');
         const bloodTextA = document.getElementById('blood-text-a');
         const bloodTextB = document.getElementById('blood-text-b');
         const bloodTextRh = document.getElementById('blood-text-rh');
-        const bloodAreaA = document.getElementById('blood-area-a');
-        const bloodAreaB = document.getElementById('blood-area-b');
-        const bloodAreaRh = document.getElementById('blood-area-rh');
-        const resultDisplay = document.getElementById('result-display');
-        const randomAndResetButton = document.getElementById('random-and-reset-button');
-        const selectionButtons = document.querySelectorAll('.selection-button');
-
-        // Arrow button elements
+        const gameStatusText = document.getElementById('game-status-text');
+        const scoreDisplay = document.getElementById('current-score');
+        const totalGamesDisplay = document.getElementById('total-games');
+        const guessSection = document.getElementById('guess-section');
+        const guessButtons = document.querySelectorAll('.guess-button');
+        const guessFeedback = document.getElementById('guess-feedback');
         const dropAButton = document.getElementById('drop-a-button');
         const dropBButton = document.getElementById('drop-b-button');
         const dropRhButton = document.getElementById('drop-rh-button');
+        
+        // Initially disable all action buttons until a new round starts
+        function toggleGameControls(enabled) {
+            dropAButton.disabled = !enabled;
+            dropBButton.disabled = !enabled;
+            dropRhButton.disabled = !enabled;
+        }
+        
+        // Function to update the score display
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = correctGuesses;
+            totalGamesDisplay.textContent = `/ ${totalGames}`;
+        }
 
-        // Handle blood type selection
-        selectionButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                const type = e.target.dataset.type;
-                const group = e.target.dataset.typeGroup;
-                document.querySelectorAll(`.selection-button[data-type-group="${group}"]`).forEach(btn => {
-                    btn.classList.remove('selected-button');
-                    btn.classList.add('bg-gray-300', 'text-gray-800');
-                });
-                e.target.classList.add('selected-button');
-                e.target.classList.remove('bg-gray-300', 'text-gray-800');
-                
-                const selectedAntigenBtn = document.querySelector('.selection-button[data-type-group="antigen"].selected-button');
-                const selectedRhBtn = document.querySelector('.selection-button[data-type-group="rh"].selected-button');
-                
-                let selectedAntigen = selectedAntigenBtn ? selectedAntigenBtn.dataset.type : null;
-                let selectedRhFactor = selectedRhBtn ? selectedRhBtn.dataset.type : null;
-                
-                if (selectedAntigen && selectedRhFactor) {
-                    currentBloodType = bloodTypes.find(bt => bt.antigen === selectedAntigen && bt.rhFactor === selectedRhFactor);
-                    if (currentBloodType) {
-                        resultDisplay.innerHTML = `<span class="text-gray-800 fade-in">تم اختيار فصيلة الدم: ${currentBloodType.type}. الآن اضغط على الأسهم.</span>`;
-                    }
-                    resetExperiment();
-                } else {
-                    currentBloodType = null;
-                    resetExperiment();
-                    resultDisplay.innerHTML = `<span class="text-gray-800 fade-in">اختر فصيلة الدم وعامل Rh أولاً.</span>`;
-                }
-            });
-        });
-
-        // Handle random selection and reset
-        randomAndResetButton.addEventListener('click', () => {
+        function startTest() {
+            totalGames++;
+            updateScoreDisplay();
+            toggleGameControls(true);
             resetExperiment();
             const randomIndex = Math.floor(Math.random() * bloodTypes.length);
             currentBloodType = bloodTypes[randomIndex];
-            resultDisplay.innerHTML = `<span class="text-gray-800 fade-in">تم اختيار فصيلة الدم عشوائياً. الآن اضغط على الأسهم.</span>`;
-            selectionButtons.forEach(btn => {
-                btn.classList.remove('selected-button');
-                btn.classList.add('bg-gray-300', 'text-gray-800');
-            });
-        });
+            gameStatusText.textContent = 'استخدم الأسهم لإسقاط الكواشف على قطرات الدم.';
+        }
 
-        // Function to handle button clicks
         function handleButtonClick(reagentType) {
             if (!currentBloodType) {
-                resultDisplay.innerHTML = `<span class="fade-in text-gray-800">الرجاء اختيار فصيلة دم أولاً!</span>`;
+                gameStatusText.textContent = 'الرجاء الضغط على "ابدأ جولة جديدة" لبدء الاختبار.';
                 return;
             }
 
             if (reagentsDropped[reagentType]) {
-                return; // Prevent clicking the same button twice
+                return;
             }
 
             reagentsDropped[reagentType] = true;
             
-            // Get the blood area and image based on the reagent type
-            let bloodArea, bloodImg, bloodText;
+            let bloodImg, bloodText;
             switch (reagentType) {
                 case 'a':
-                    bloodArea = bloodAreaA;
                     bloodImg = bloodImgA;
                     bloodText = bloodTextA;
                     break;
                 case 'b':
-                    bloodArea = bloodAreaB;
                     bloodImg = bloodImgB;
                     bloodText = bloodTextB;
                     break;
                 case 'rh':
-                    bloodArea = bloodAreaRh;
                     bloodImg = bloodImgRh;
                     bloodText = bloodTextRh;
                     break;
             }
 
-            simulateReaction(reagentType, bloodArea, bloodImg, bloodText);
+            simulateReaction(reagentType, bloodImg, bloodText);
         }
         
-        // Add event listeners to the new buttons
-        dropAButton.addEventListener('click', () => handleButtonClick('a'));
-        dropBButton.addEventListener('click', () => handleButtonClick('b'));
-        dropRhButton.addEventListener('click', () => handleButtonClick('rh'));
-
-        function simulateReaction(reagentType, bloodArea, bloodImg, bloodText) {
+        function simulateReaction(reagentType, bloodImg, bloodText) {
             let isAgglutinated = false;
             switch (reagentType) {
                 case 'a':
                     isAgglutinated = currentBloodType.a;
                     reactions.a = isAgglutinated;
+                    dropAButton.disabled = true;
                     break;
                 case 'b':
                     isAgglutinated = currentBloodType.b;
                     reactions.b = isAgglutinated;
+                    dropBButton.disabled = true;
                     break;
                 case 'rh':
                     isAgglutinated = currentBloodType.rh;
                     reactions.rh = isAgglutinated;
+                    dropRhButton.disabled = true;
                     break;
             }
 
             if (isAgglutinated) {
-                // Change image to agglutination state and add effect
                 bloodImg.src = imageAgglutination;
                 bloodImg.classList.add('agglutination-effect');
                 bloodText.textContent = 'تلازن!';
             } else {
-                // Change image to normal state and show no agglutination text
                 bloodImg.src = imageNormal;
                 bloodImg.classList.remove('agglutination-effect');
                 bloodText.textContent = 'لا يوجد تلازن';
             }
 
-            // Disable the corresponding arrow button after a click
-            let buttonToDisable = null;
-            switch(reagentType) {
-                case 'a':
-                    buttonToDisable = dropAButton;
-                    break;
-                case 'b':
-                    buttonToDisable = dropBButton;
-                    break;
-                case 'rh':
-                    buttonToDisable = dropRhButton;
-                    break;
-            }
-            if(buttonToDisable) {
-                buttonToDisable.disabled = true;
-            }
+            gameStatusText.textContent = 'تمت إضافة الكاشف بنجاح! أكمل الاختبار.';
 
-            // Check if all reagents have been added and display the final result
             if (reagentsDropped.a && reagentsDropped.b && reagentsDropped.rh) {
-                setTimeout(updateResult, 1000);
-            } else {
-                resultDisplay.innerHTML = `<span class="fade-in text-gray-800">تمت إضافة المضاد بنجاح!</span>`;
+                setTimeout(() => {
+                    gameStatusText.textContent = 'التحليل كامل! قم بتخمين فصيلة الدم.';
+                    guessSection.classList.remove('hidden');
+                    toggleGameControls(false);
+                }, 1000);
             }
         }
 
-        function updateResult() {
-            let resultText = '';
-            
-            // Determine the blood type based on the reactions
-            const foundType = bloodTypes.find(type => 
-                type.a === reactions.a &&
-                type.b === reactions.b &&
-                type.rh === reactions.rh
-            );
-            
-            if (foundType) {
-                resultText = `فصيلة الدم هي: ${foundType.type}`;
-            } else {
-                resultText = `لا يمكن تحديد الفصيلة.`;
-            }
+        function handleGuess(e) {
+            const guessedType = e.target.dataset.type;
+            const isCorrect = guessedType === currentBloodType.type;
 
-            resultDisplay.innerHTML = `<span class="fade-in result-text">${resultText}</span>`;
+            // Remove previous classes from all buttons
+            guessButtons.forEach(button => {
+                button.classList.remove('correct-guess', 'incorrect-guess');
+                button.classList.add('bg-gray-300', 'text-gray-800');
+            });
+
+            if (isCorrect) {
+                correctGuesses++;
+                updateScoreDisplay();
+                guessFeedback.textContent = `إجابتك صحيحة! فصيلة الدم هي: ${currentBloodType.type}`;
+                guessFeedback.classList.remove('incorrect-guess');
+                guessFeedback.classList.add('correct-guess');
+                e.target.classList.remove('bg-gray-300', 'text-gray-800'); // Remove default class
+                e.target.classList.add('correct-guess'); // Add green class
+            } else {
+                guessFeedback.textContent = `إجابتك خاطئة. فصيلة الدم الصحيحة هي: ${currentBloodType.type}`;
+                guessFeedback.classList.remove('correct-guess');
+                guessFeedback.classList.add('incorrect-guess');
+                e.target.classList.remove('bg-gray-300', 'text-gray-800'); // Remove default class
+                e.target.classList.add('incorrect-guess'); // Add red class
+                
+                // Highlight the correct answer as well
+                const correctButton = document.querySelector(`[data-type="${currentBloodType.type}"]`);
+                if (correctButton) {
+                     correctButton.classList.remove('bg-gray-300', 'text-gray-800');
+                     correctButton.classList.add('correct-guess');
+                }
+            }
+            
+            // Disable all guess buttons after a guess is made
+            guessButtons.forEach(button => button.disabled = true);
+            
+            // Automatically start a new round after a delay
+            setTimeout(startTest, 3000);
         }
-        
+
         function resetExperiment() {
-            // Reset blood areas and images
             bloodImgA.src = imageNormal;
             bloodImgB.src = imageNormal;
             bloodImgRh.src = imageNormal;
@@ -548,30 +524,37 @@ border-bottom-right-radius: 2rem;
             bloodTextB.textContent = 'قطرة دم 2';
             bloodTextRh.textContent = 'قطرة دم 3';
             
-            // Reset text and state
-            resultDisplay.innerHTML = `<span class="text-gray-500">قم بإجراء الاختبار لتحديد الفصيلة</span>`;
-            
             reagentsDropped = { a: false, b: false, rh: false };
             reactions = { a: false, b: false, rh: false };
-
-            // Apply a random rotation to each image on reset using the custom property
+            currentBloodType = null;
+            
             bloodImgA.style.setProperty('--random-rotation', `${Math.random() * 360}deg`);
             bloodImgB.style.setProperty('--random-rotation', `${Math.random() * 360}deg`);
             bloodImgRh.style.setProperty('--random-rotation', `${Math.random() * 360}deg`);
             
-            // Enable all arrow buttons
-            dropAButton.disabled = false;
-            dropBButton.disabled = false;
-            dropRhButton.disabled = false;
+            guessSection.classList.add('hidden');
+            guessFeedback.textContent = '';
+            guessButtons.forEach(button => {
+                button.disabled = false;
+                button.classList.remove('correct-guess', 'incorrect-guess');
+                button.classList.add('bg-gray-300', 'text-gray-800');
+            });
         }
+        
+        // Event listeners
+        dropAButton.addEventListener('click', () => handleButtonClick('a'));
+        dropBButton.addEventListener('click', () => handleButtonClick('b'));
+        dropRhButton.addEventListener('click', () => handleButtonClick('rh'));
+        guessButtons.forEach(button => {
+            button.addEventListener('click', handleGuess);
+        });
 
-        // Function to initialize the app
-        function initApp() {
-            // Automatically select a random blood type
-            randomAndResetButton.click();
-        }
+        // Initialize on page load
+        window.onload = function() {
+            preloadImages();
+            startTest();
+        };
 
-        window.onload = initApp;
     </script>
 </body>
 </html>
