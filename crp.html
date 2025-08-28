@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحليل CRP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f3f4f6;
+            word-spacing: normal; /* This line was added to remove extra spacing */
+        }
+        .purple-gradient {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+        }
+        .text-purple-dark {
+            color: #6d28d9;
+        }
+        /* Interactive Button Styles */
+        .interactive-button {
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            background: linear-gradient(45deg, #9333ea, #7e22ce, #6b21a8);
+        }
+        .interactive-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .interactive-button:active {
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+        /* New Button Gradient */
+        .new-purple-gradient {
+            background: linear-gradient(45deg, #a855f7, #9333ea, #7e22ce);
+        }
+        /* Utility Class */
+        .hidden {
+            display: none;
+        }
+        /* Droplet Styles */
+        .drop-container {
+            position: absolute;
+            top: -200px;
+            width: 152px;
+            height: 152px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            z-index: 20;
+            filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.2));
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55), top 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        .drop-reagent {
+            background-color: rgba(59, 130, 246, 0.75);
+            left: 25%;
+        }
+        .drop-sample {
+            background-color: rgba(245, 158, 11, 0.75);
+            right: 25%;
+        }
+        /* Animation Classes */
+        .drop-fall {
+            top: 5px;
+        }
+        .drop-mix {
+            transform: translateX(0);
+        }
+        .drop-mix-reagent {
+            left: 50%;
+            transform: translateX(-50%);
+            animation: mix-rotate-reagent 1.0s ease-in-out forwards;
+        }
+        .drop-mix-sample {
+            right: 50%;
+            transform: translateX(50%);
+            animation: mix-rotate-sample 1.0s ease-in-out forwards;
+        }
+        @keyframes mix-rotate-reagent {
+            to { transform: translateX(-50%) rotate(360deg); }
+        }
+        @keyframes mix-rotate-sample {
+            to { transform: translateX(50%) rotate(-360deg); }
+        }
+        .drop-fading-out {
+            animation: fadeOut 0.5s ease-out forwards;
+        }
+        @keyframes fadeOut {
+            to { opacity: 0; transform: scale(0); }
+        }
+        /* Shake animation for the test area */
+        .shake-animation {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+            transform: translate3d(0, 0, 0);
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+        /* Particle system for positive result */
+        .particle {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: particle-float 2s ease-in-out infinite, opacity-pulse 1s ease-in-out infinite alternate;
+        }
+        @keyframes particle-float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+        @keyframes opacity-pulse {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-200 p-4 min-h-screen flex flex-col items-center justify-center">
+            <a href="https://mogazy.github.io/analysis/">
+    <header class="fixed top-0 right-0 left-0 z-50 bg-gradient-to-l from-[#d000fa] to-[#6d07ba] text-white p-4 text-center rounded-b-3xl header-intense-shadow">
+        <div class="max-w-2xl mx-auto w-full">
+            <span class="text-white text-lg font-bold">
+                العودة إلى قائمة التحليلات
+            </span>
+        </div>
+    </header>
+    </a>
+    <style>
+                    body {
+  margin-top: 80px;
+}
+
+
+        /* تنسيقات الهيدر الجديد */
+.header-intense-shadow {
+ box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+ transition: all 0.3s ease-in-out;
+ padding: 1.1rem; /* حجم padding ابتدائي أكبر */
+ font-size: 2rem; /* حجم خط ابتدائي أكبر */
+ border-bottom-left-radius: 0rem;  
+border-bottom-right-radius: 0rem;
+}
+
+.header-intense-shadow.scrolled {
+box-shadow: 0 6px 10px rgba(0, 0, 0, 0.5);
+padding: 1rem; /* حجم padding أصغر عند التمرير */
+ font-size: 1rem; /* حجم خط أصغر عند التمرير */
+  border-bottom-left-radius: 2rem;  
+border-bottom-right-radius: 2rem;
+}
+</style>
+<script>
+ document.addEventListener('DOMContentLoaded', () => {
+ const header = document.querySelector('header');
+
+ window.addEventListener('scroll', () => {
+ if (window.scrollY > 50) { // يمكنك تعديل قيمة 50 لتحديد متى يبدأ التصغير
+ header.classList.add('scrolled');
+ } else {
+ header.classList.remove('scrolled');
+ }
+ });
+
+ // باقي كود التبويبات (إذا لم تقم بإزالته)
+ const ptTab = document.getElementById('pt-tab');
+ const pttTab = document.getElementById('ptt-tab');
+ const ptContent = document.getElementById('pt-content');
+ const pttContent = document.getElementById('ptt-content');
+
+ function setActiveTab(activeTab, inactiveTab, activeContent, inactiveContent) {
+ activeTab.classList.add('active');
+ activeTab.classList.remove('bg-gray-200', 'text-purple-900');
+ activeTab.classList.add('bg-purple-900', 'text-white');
+
+ inactiveTab.classList.remove('active', 'bg-purple-900', 'text-white');
+ inactiveTab.classList.add('bg-gray-200', 'text-purple-900');
+
+ activeContent.classList.add('active');
+ inactiveContent.classList.remove('active');
+ }
+
+ ptTab.addEventListener('click', () => {
+ setActiveTab(ptTab, pttTab, ptContent, pttContent);
+ });
+
+ pttTab.addEventListener('click', () => {
+ setActiveTab(pttTab, ptTab, pttContent, ptContent);
+ });
+
+ setActiveTab(ptTab, pttTab, ptContent, pttContent);
+ });
+            
+</script>
+
+   
+    <!-- CRP Definition Card -->
+    <div class="bg-white p-6 rounded-3xl shadow-lg max-w-xl w-full mb-6">
+        <h2 class="text-xl md:text-2xl font-bold text-purple-dark mb-4 text-center">C-reactive protein - CRP</h2>
+        <p class="text-black text-base leading-relaxed text-justify">
+            <span class="font-bold">C-reactive protein - CRP</span> أحدَ البروتيناتِ التي يُنتجُها <span class="font-bold">الكبدُ</span>. تُعَدُّ مستوياتُهُ في الدمِ مؤشراً دالًّا على وجودِ حالةِ <span class="font-bold">التهابٍ في الجسمِ</span>، إذْ إنَّها ترتفعُ استجابةً <span class="font-bold">للعدوى</span> و<span class="font-bold">الإصاباتِ</span>، وكذلكَ الأمراضِ المزمنةِ مثلِ التهابِ المفاصلِ الروماتويديِّ وأمراضِ الأمعاءِ الالتهابيةِ.
+        </p>
+    </div>
+
+    <!-- Interactive CRP Test -->
+    <div class="bg-white p-8 md:p-12 rounded-2xl shadow-xl max-w-lg w-full flex flex-col items-center text-center mt-6 mb-6">
+        <!-- Header Section -->
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">اختبار CRP</h1>
+
+        <!-- Main test area container -->
+        <div id="test-area" class="w-full flex justify-center items-center h-48 mb-8 relative">
+            <div id="test-rect" class="absolute inset-0 bg-gray-200 rounded-xl p-6 flex justify-center items-center">
+                <!-- The main test circle / tube -->
+                <div id="test-tube" class="w-40 h-40 bg-gray-800 rounded-full relative flex justify-center items-center overflow-hidden z-10 border-4 border-gray-900">
+                    <!-- Blue reagent drop -->
+                    <div id="reagent-drop" class="drop-container drop-reagent hidden"></div>
+                    <!-- Yellow sample drop -->
+                    <div id="sample-drop" class="drop-container drop-sample hidden"></div>
+
+                    <!-- Container for particles, now a direct child of test-tube -->
+                    <div id="positive-result-particles" class="absolute inset-0 z-40 hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive buttons -->
+        <div id="buttons-container" class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4 w-full">
+            <button id="add-reagent" class="interactive-button new-purple-gradient text-white px-6 py-3 rounded-lg font-bold text-base w-full md:w-auto flex items-center justify-center space-x-2">
+                <i class="fas fa-flask"></i>
+                <span>أضف الكاشف</span>
+            </button>
+            <button id="add-sample" class="interactive-button new-purple-gradient text-white px-6 py-3 rounded-lg font-bold text-base w-full md:w-auto flex items-center justify-center space-x-2">
+                <i class="fas fa-syringe"></i>
+                <span>أضف العينة</span>
+            </button>
+            <button id="mix-button" class="interactive-button new-purple-gradient text-white px-8 py-3 rounded-lg font-bold text-base hidden w-full md:w-auto flex items-center justify-content-center space-x-2">
+                <i class="fas fa-sync-alt"></i>
+                <span>اخلط</span>
+            </button>
+        </div>
+
+        <!-- Result message and options -->
+        <div id="options-container" class="flex justify-between space-x-4 w-full mt-4 hidden">
+            <button id="positive-option" class="interactive-button new-purple-gradient text-white w-full py-3 rounded-lg font-bold text-base transition-all duration-200">
+                إيجابي (+)
+            </button>
+            <button id="negative-option" class="interactive-button new-purple-gradient text-white w-full py-3 rounded-lg font-bold text-base transition-all duration-200">
+                سلبي (-)
+            </button>
+        </div>
+
+        <div id="result-message" class="mt-8 text-center hidden">
+            <p id="message-text" class="text-lg md:text-xl font-bold"></p>
+            <button id="reset-button" class="mt-4 px-6 py-2 rounded-lg text-white font-bold interactive-button new-purple-gradient">
+                إعادة الاختبار
+            </button>
+        </div>
+
+        <!-- Instructions bar -->
+        <div class="mt-8 pt-4 border-t border-gray-200 w-full text-center">
+            <p class="text-gray-500 text-xs">
+                <strong class="font-bold">التعليمات:</strong> ابدأ بإضافة الكاشف، ثم العينة، وراقب النتيجة قبل اختيارها.
+            </p>
+        </div>
+    </div>
+
+    <!-- CRP Test Card -->
+    <div class="bg-white p-6 rounded-3xl shadow-lg max-w-xl w-full mb-6">
+        <h2 class="text-xl font-bold text-purple-dark mb-4 text-center">تعريف تحليل CRP</h2>
+        <div class="w-full h-1 bg-purple-400 rounded-full mb-4"></div>
+        <p class="text-black text-base leading-relaxed mb-6 text-justify">
+            <span class="font-bold">تحليل (CRP)</span> فحص دموي يُستخدمُ لقياسِ كميةِ <span class="font-bold">C-reactive protein</span> في الدمِ. يُسهمُ هذا التحليلُ في تشخيصِ ومتابعةِ الحالاتِ <span class="font-bold">الالتهابيةِ</span> و<span class="font-bold">العدوى</span> في الجسمِ، كما أنَّهُ يُساعدُ الأطباءَ على تقييمِ مدى فعاليةِ العلاجِ المُقدَّمِ للمريضِ.
+        </p>
+
+        <!-- Steps Section -->
+        <h3 class="text-lg font-bold text-purple-dark mb-4">خطواتُ تحليل (CRP)</h3>
+        <div class="flex flex-col space-y-6">
+            <!-- Step 1 -->
+            <div class="bg-purple-100 p-4 rounded-xl shadow-inner border border-purple-300 relative flex items-start">
+                <div class="absolute -top-3 right-4 text-white text-2xl font-bold p-4 w-10 h-10 rounded-full flex items-center justify-center purple-gradient shadow-md">
+                    1
+                </div>
+                <div class="text-black text-sm leading-relaxed mt-2 mr-12 text-justify">
+                    <span class="font-bold">أخذُ العينةِ:</span> تُؤخذُ عينةُ الدمِ وتُوضَعُ مباشرةً في أنبوبِ فصلِ المصلِ (<span class="font-bold">Gel tube</span>)، ثم تُوضَعُ في جهازِ <span class="font-bold">الطردِ المركزيِّ (Centrifuge)</span> لفصلِ المصلِ (<span class="font-bold">Serum</span>) عنِ الخلايا.
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="bg-purple-100 p-4 rounded-xl shadow-inner border border-purple-300 relative flex items-start">
+                <div class="absolute -top-3 right-4 text-white text-2xl font-bold p-4 w-10 h-10 rounded-full flex items-center justify-center purple-gradient shadow-md">
+                    2
+                </div>
+                <div class="text-black text-sm leading-relaxed mt-2 mr-12 text-justify">
+                    <span class="font-bold">المزجُ:</span> تُؤخذُ كميةٌ محددةٌ من المصلِ وتُوضَعُ على شريحةٍ زجاجيةٍ أو بطاقةِ تفاعلٍ، ثم يُضافُ إليها نفسُ الحجمِ من <span class="font-bold">الكاشفِ (Reagent)</span>.
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="bg-purple-100 p-4 rounded-xl shadow-inner border border-purple-300 relative flex items-start">
+                <div class="absolute -top-3 right-4 text-white text-2xl font-bold p-4 w-10 h-10 rounded-full flex items-center justify-center purple-gradient shadow-md">
+                    3
+                </div>
+                <div class="text-black text-sm leading-relaxed mt-2 mr-12 text-justify">
+                    <span class="font-bold">الانتظارُ:</span> تُخلَطُ العينةُ معَ الكاشفِ جيداً وتُترَكُ لفترةِ محددةٍ من قِبلِ الشركةِ المصنعةِ.
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="bg-purple-100 p-4 rounded-xl shadow-inner border border-purple-300 relative flex items-start">
+                <div class="absolute -top-3 right-4 text-white text-2xl font-bold p-4 w-10 h-10 rounded-full flex items-center justify-center purple-gradient shadow-md">
+                    4
+                </div>
+                <div class="text-black text-sm leading-relaxed mt-2 mr-12 text-justify">
+                    <span class="font-bold">النتائجُ:</span> إذا ظهرَ <span class="font-bold">تراصٌّ (Agglutination)</span> أو تجمُّعٌ مرئيٌّ في العينةِ، فإنَّ النتيجةَ تُعتَبرُ <span class="font-bold">إيجابيةً (Positive)</span>، مما يُشيرُ إلى وجودِ التهابٍ. أما في حالةِ عدمِ ظهورِ أيِّ تراصٍّ، فإنَّ النتيجةَ تكونُ <span class="font-bold">سلبيةً (Negative)</span>.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Benefit Card -->
+    <div class="bg-white p-6 rounded-3xl shadow-lg max-w-xl w-full mt-6">
+        <h2 class="text-xl font-bold text-purple-dark mb-4 text-center">فائدة التحليل</h2>
+        <p class="text-black text-base leading-relaxed text-justify">
+            يُعد <span class="font-bold">تحليل CRP</span> أداة مهمة للأطباء لتقييم مستويات <span class="font-bold">الالتهاب</span> في الجسم. يساعد في تشخيص حالات مثل <span class="font-bold">العدوى البكتيرية</span>، وأمراض <span class="font-bold">المناعة الذاتية</span>، بالإضافة إلى استخدامه لمراقبة تطور المرض ومدى استجابة الجسم للعلاج.
+        </p>
+    </div>
+<script>
+    // Constants for DOM elements
+    const addReagentBtn = document.getElementById('add-reagent');
+    const addSampleBtn = document.getElementById('add-sample');
+    const mixButton = document.getElementById('mix-button');
+    const reagentDrop = document.getElementById('reagent-drop');
+    const sampleDrop = document.getElementById('sample-drop');
+    const testRectDiv = document.getElementById('test-rect');
+    const testTubeDiv = document.getElementById('test-tube');
+    const optionsContainer = document.getElementById('options-container');
+    const positiveOptionBtn = document.getElementById('positive-option');
+    const negativeOptionBtn = document.getElementById('negative-option');
+    const resultMessageDiv = document.getElementById('result-message');
+    const messageText = document.getElementById('message-text');
+    const resetButton = document.getElementById('reset-button');
+    const positiveParticlesContainer = document.getElementById('positive-result-particles');
+
+    // State variables
+    let isPositiveCorrect = Math.random() < 0.5;
+    let hasReagent = false;
+    let hasSample = false;
+
+    /**
+     * Creates and animates particles for a positive test result.
+     * This function is called when the result is positive.
+     */
+    function createParticles() {
+        // Clear any existing particles
+        positiveParticlesContainer.innerHTML = '';
+        const numParticles = 100;
+        for (let i = 0; i < numParticles; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            const size = Math.random() * 2 + 1;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            particle.style.animationDelay = `${Math.random() * 1.5}s`;
+            positiveParticlesContainer.appendChild(particle);
+        }
+    }
+
+    /**
+     * Event listener for the "Add Reagent" button.
+     * Starts the falling animation for the reagent drop.
+     */
+    addReagentBtn.addEventListener('click', () => {
+        if (!hasReagent) {
+            // Show the drop and start the fall animation
+            reagentDrop.classList.remove('hidden');
+            reagentDrop.classList.add('drop-fall');
+            // Update state
+            hasReagent = true;
+            // Check if both drops are ready to be mixed
+            checkReadyToMix();
+        }
+    });
+
+    /**
+     * Event listener for the "Add Sample" button.
+     * Starts the falling animation for the sample drop.
+     */
+    addSampleBtn.addEventListener('click', () => {
+        if (!hasSample) {
+            // Show the drop and start the fall animation
+            sampleDrop.classList.remove('hidden');
+            sampleDrop.classList.add('drop-fall');
+            // Update state
+            hasSample = true;
+            // Check if both drops are ready to be mixed
+            checkReadyToMix();
+        }
+    });
+
+    /**
+     * Checks if both reagent and sample drops have been added.
+     * If so, it hides the "Add" buttons and shows the "Mix" button.
+     */
+    function checkReadyToMix() {
+        if (hasReagent && hasSample) {
+            addReagentBtn.classList.add('hidden');
+            addSampleBtn.classList.add('hidden');
+            mixButton.classList.remove('hidden');
+        }
+    }
+
+    /**
+     * Event listener for the "Mix" button.
+     * Triggers the mixing, shaking, and result animations.
+     */
+    mixButton.addEventListener('click', () => {
+        // Hide the mix button and start the test area shake animation
+        mixButton.classList.add('hidden');
+        testRectDiv.classList.add('shake-animation');
+
+        // Start mixing animations for both drops
+        reagentDrop.classList.add('drop-mix-reagent');
+        sampleDrop.classList.add('drop-mix-sample');
+
+        // Timeout to handle post-mixing actions
+        setTimeout(() => {
+            // Remove the shake animation
+            testRectDiv.classList.remove('shake-animation');
+            // Fade the drops out
+            reagentDrop.classList.add('drop-fading-out');
+            sampleDrop.classList.add('drop-fading-out');
+
+            // Now, wait for the fade-out animation to finish (0.5s) then hide the elements completely
+            setTimeout(() => {
+                reagentDrop.classList.add('hidden');
+                sampleDrop.classList.add('hidden');
+                
+                // Change the background of the main test tube
+                testTubeDiv.style.background = 'radial-gradient(circle, #e0e0e0, #b0e0e0)';
+            }, 500); // 500ms matches the animation duration
+
+            // Show particles only if the result is positive
+            if (isPositiveCorrect) {
+                positiveParticlesContainer.classList.remove('hidden');
+                createParticles();
+            }
+            
+            // Wait a moment before showing the options
+            setTimeout(() => {
+                optionsContainer.classList.remove('hidden');
+            }, 1000);
+
+        }, 1200);
+    });
+
+    /**
+     * Event listener for the "Positive" option button.
+     */
+    positiveOptionBtn.addEventListener('click', () => {
+        reagentDrop.classList.add('hidden');
+        sampleDrop.classList.add('hidden');
+        showResult(true);
+    });
+
+    /**
+     * Event listener for the "Negative" option button.
+     */
+    negativeOptionBtn.addEventListener('click', () => {
+        reagentDrop.classList.add('hidden');
+        sampleDrop.classList.add('hidden');
+        showResult(false);
+    });
+
+    /**
+     * Displays the final result message based on the user's choice.
+     * @param {boolean} isUserPositive - True if the user selected the positive option, false otherwise.
+     */
+    function showResult(isUserPositive) {
+        optionsContainer.classList.add('hidden');
+        resultMessageDiv.classList.remove('hidden');
+
+        if (isUserPositive === isPositiveCorrect) {
+            messageText.textContent = "إجابة صحيحة! هذا ما يجب أن تبدو عليه النتيجة.";
+            messageText.classList.add('text-green-600');
+            messageText.classList.remove('text-red-600');
+        } else {
+            messageText.textContent = "إجابة خاطئة. حاول مرة أخرى!";
+            messageText.classList.add('text-red-600');
+            messageText.classList.remove('text-green-600');
+        }
+    }
+
+    /**
+     * Event listener for the "Reset" button.
+     * Resets the application to its initial state.
+     */
+    resetButton.addEventListener('click', () => {
+        // Reset the test tube background to black
+        testTubeDiv.style.background = '#1f2937';
+        
+        // Hide result and options containers
+        optionsContainer.classList.add('hidden');
+        resultMessageDiv.classList.add('hidden');
+        mixButton.classList.add('hidden');
+        
+        // Clear all animation and positioning classes
+        reagentDrop.classList.remove('drop-fall', 'drop-mix-reagent', 'drop-fading-out');
+        sampleDrop.classList.remove('drop-fall', 'drop-mix-sample', 'drop-fading-out');
+        
+        // Hide drops and ensure they are in their original off-screen state
+        reagentDrop.classList.add('hidden');
+        sampleDrop.classList.add('hidden');
+        
+        // Reset inline styles
+        reagentDrop.style = '';
+        sampleDrop.style = '';
+
+        // Clear and hide particles
+        positiveParticlesContainer.innerHTML = '';
+        positiveParticlesContainer.classList.add('hidden');
+        
+        // Show the initial buttons
+        addReagentBtn.classList.remove('hidden');
+        addSampleBtn.classList.remove('hidden');
+
+        // Reset state variables
+        hasReagent = false;
+        hasSample = false;
+        
+        // Randomize the correct result for the next round
+        isPositiveCorrect = Math.random() < 0.5;
+    });
+</script>
+
+</body>
+</html>
